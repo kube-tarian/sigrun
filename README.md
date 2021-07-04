@@ -10,7 +10,7 @@ To make it easy to use SigStore chain of tools. Make the Supply Chain Security f
 Local, CI/CD pipelines, K8s Clusters, VMs. 
 #
 #### Features:
-- Install Sigstore tools in your Infra for Air-Gap offline usage
+- Using Sigstore tools in your Infra for Air-Gap offline usage via your CI/CD Pipeline
 - Sign your artifacts
 - Private & Public key-pair
 - Keyless
