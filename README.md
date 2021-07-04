@@ -1,5 +1,5 @@
 # SigRun
-Sign your artifacts source code or container images using Sigstore chain of tools, Save the Signatures you want to use within your Infra, and Validate &amp; Control the deployments to allow only the known Signatures.
+Sign your artifacts source code or container images using Sigstore chain of tools & Known Container Image Build tools, Save the Signatures you want to use within your Infra, and Validate &amp; Control the deployments to allow only the known Signatures.
 > What's with the Name (in case if you are curious)?
 > You can think of multiple ways. It has a flexible interpretation, like Signatures for Runtime or Runtime Signatures. Whatever you want to imagine! :smiley: 
 #
@@ -10,6 +10,7 @@ To make it easy to use SigStore chain of tools. Make the Supply Chain Security f
 Local, CI/CD pipelines, K8s Clusters, VMs. 
 #
 #### Features:
+- Install Sigstore tools in your Infra for Air-Gap offline usage
 - Sign your artifacts
 - Private & Public key-pair
 - Keyless
@@ -19,6 +20,7 @@ Local, CI/CD pipelines, K8s Clusters, VMs.
 - Control deployments to allow only known Signatures using our Custom Admission Controller or OPA/Kyverno/Gatekeeper
 - Vault Integration to save Keys
 - CI/CD Tools integration
+- Integration with tools like Buildpacks, Buildah, Source2Image, Kaniko, Skaffold, Docker Build, Podman, etc. 
 - OIDC
 - Vulnerability Scanning of your container images
 - RBAC -> Enterprise
