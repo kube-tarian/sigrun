@@ -23,6 +23,7 @@ Local, CI/CD pipelines, K8s Clusters, VMs.
 - Integration with tools like Buildpacks, Buildah, Source2Image, Kaniko, Skaffold, Docker Build, Podman, etc. 
 - OIDC
 - Vulnerability Scanning of your container images
+- Integrate with Non-Profit SigStore public service
 - RBAC -> Enterprise
 - SSO -> Enterprise
 
