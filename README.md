@@ -24,7 +24,6 @@ Local, CI/CD pipelines, K8s Clusters, VMs.
 - OIDC
 - Vulnerability Scanning of your container images
 - Integrate with Non-Profit SigStore public service
-- RBAC -> Enterprise
-- SSO -> Enterprise
+
 
 #
