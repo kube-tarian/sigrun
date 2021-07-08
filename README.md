@@ -3,6 +3,12 @@ Sign your artifacts source code or container images using Sigstore chain of tool
 > What's with the Name (in case if you are curious)?
 > You can think of multiple ways. It has a flexible interpretation, like Signatures for Runtime or Runtime Signatures. Whatever you want to imagine! :smiley: 
 #
+
+### Install
+```
+go install cmd/sigrun/sigrun.go
+```
+
 ##### Purpose:
 To make it easy to use SigStore chain of tools. Make the Supply Chain Security for Software adoption easy. 
 #
