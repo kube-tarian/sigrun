@@ -1,10 +1,10 @@
-package commands
+package cli
 
 import (
-	"github.com/devopstoday11/sigrun/pkg/cli/commands/add"
-	initCmd "github.com/devopstoday11/sigrun/pkg/cli/commands/init"
-	"github.com/devopstoday11/sigrun/pkg/cli/commands/sign"
-	"github.com/devopstoday11/sigrun/pkg/cli/commands/update"
+	"github.com/devopstoday11/sigrun/pkg/cli/add"
+	initCmd "github.com/devopstoday11/sigrun/pkg/cli/init"
+	"github.com/devopstoday11/sigrun/pkg/cli/sign"
+	"github.com/devopstoday11/sigrun/pkg/cli/update"
 	"github.com/spf13/cobra"
 )
 

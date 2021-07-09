@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/devopstoday11/sigrun/pkg/cli/config"
+	"github.com/devopstoday11/sigrun/pkg/config"
 
 	"github.com/pkg/errors"
 	cosignCLI "github.com/sigstore/cosign/cmd/cosign/cli"

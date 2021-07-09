@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/devopstoday11/sigrun/pkg/cli/config"
+	"github.com/devopstoday11/sigrun/pkg/config"
 	cosignCLI "github.com/sigstore/cosign/cmd/cosign/cli"
 	"github.com/sigstore/cosign/pkg/cosign"
 	"github.com/spf13/cobra"

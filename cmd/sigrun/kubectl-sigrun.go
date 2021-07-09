@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	cli "github.com/devopstoday11/sigrun/pkg/cli/commands"
+	"github.com/devopstoday11/sigrun/pkg/cli"
 )
 
 func main() {
