@@ -1,7 +1,8 @@
 package config
 
 import (
-	"bytes"
+	"context"
+	"encoding/base64"
 	"encoding/json"
 	"os"
 
@@ -49,14 +50,16 @@ func Create(conf *Config, password string) error {
 		return err
 	}
 
-	sig, err := signer.SignMessage(bytes.NewReader(confRaw))
+	sig, _, err := signer.Sign(context.Background(), confRaw)
 	if err != nil {
 		return err
 	}
 
-	conf.Signature = string(sig)
+	conf.Signature = base64.StdEncoding.EncodeToString(sig)
 
-	err = json.NewEncoder(configF).Encode(conf)
+	encoder := json.NewEncoder(configF)
+	encoder.SetIndent("", "	")
+	err = encoder.Encode(conf)
 	if err != nil {
 		return err
 	}

@@ -6,6 +6,7 @@ Sign your artifacts source code or container images using Sigstore chain of tool
 
 ### Install
 ```
+sudo apt-get update && sudo apt-get install -yq libpcsclite-dev
 go install cmd/sigrun/sigrun.go
 ```
 
