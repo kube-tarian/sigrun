@@ -1,11 +1,11 @@
-package cli
+package commands
 
 import (
-	"github.com/devopstoday11/sigrun/pkg/cli/cluster/add"
-	clusterinit "github.com/devopstoday11/sigrun/pkg/cli/cluster/init"
-	"github.com/devopstoday11/sigrun/pkg/cli/cluster/update"
-	repoinit "github.com/devopstoday11/sigrun/pkg/cli/repo/init"
-	"github.com/devopstoday11/sigrun/pkg/cli/repo/sign"
+	"github.com/devopstoday11/sigrun/pkg/cli/commands/cluster/add"
+	clusterinit "github.com/devopstoday11/sigrun/pkg/cli/commands/cluster/init"
+	"github.com/devopstoday11/sigrun/pkg/cli/commands/cluster/update"
+	repoinit "github.com/devopstoday11/sigrun/pkg/cli/commands/repo/init"
+	"github.com/devopstoday11/sigrun/pkg/cli/commands/repo/sign"
 	"github.com/spf13/cobra"
 )
 
