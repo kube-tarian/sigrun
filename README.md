@@ -6,7 +6,7 @@ Sign your artifacts source code or container images using Sigstore chain of tool
 
 ### Install
 ```
-go install cmd/sigrun/sigrun.go
+go install cmd/sigrun/kubectl-sigrun.go
 ```
 
 ##### Purpose:

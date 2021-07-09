@@ -16,7 +16,6 @@ import (
 
 func Command() *cobra.Command {
 
-	// TODO support annotations
 	cmd := &cobra.Command{
 		Use:   "sign",
 		Short: "Signs the images related to this repo using cosign",

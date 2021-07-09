@@ -1,11 +1,10 @@
 package commands
 
 import (
-	"github.com/devopstoday11/sigrun/pkg/cli/commands/cluster/add"
-	clusterinit "github.com/devopstoday11/sigrun/pkg/cli/commands/cluster/init"
-	"github.com/devopstoday11/sigrun/pkg/cli/commands/cluster/update"
-	repoinit "github.com/devopstoday11/sigrun/pkg/cli/commands/repo/init"
-	"github.com/devopstoday11/sigrun/pkg/cli/commands/repo/sign"
+	"github.com/devopstoday11/sigrun/pkg/cli/commands/add"
+	initCmd "github.com/devopstoday11/sigrun/pkg/cli/commands/init"
+	"github.com/devopstoday11/sigrun/pkg/cli/commands/sign"
+	"github.com/devopstoday11/sigrun/pkg/cli/commands/update"
 	"github.com/spf13/cobra"
 )
 
@@ -17,32 +16,11 @@ func Run() error {
 			"deployments to allow only the known Signatures.",
 	}
 
-	cli.AddCommand(RepoCommands(), ClusterCommands())
+	cli.AddCommand(initCmd.Command(), add.Command(), sign.Command(), update.Command())
 
 	if err := cli.Execute(); err != nil {
 		return err
 	}
 
 	return nil
-}
-
-func RepoCommands() *cobra.Command {
-	initCmd := &cobra.Command{
-		Use:   "repo",
-		Short: "Commands related to managing a sigrun repo",
-	}
-
-	initCmd.AddCommand(repoinit.Command(), sign.Command())
-
-	return initCmd
-}
-func ClusterCommands() *cobra.Command {
-	initCmd := &cobra.Command{
-		Use:   "cluster",
-		Short: "Commands related to managing a sigrun cluster",
-	}
-
-	initCmd.AddCommand(clusterinit.Command(), add.Command(), update.Command())
-
-	return initCmd
 }
