@@ -9,6 +9,11 @@ Sign your artifacts source code or container images using Sigstore chain of tool
 go install cmd/sigrun/kubectl-sigrun.go
 ```
 
+### Usage
+```
+kubectl sigrun --help
+```
+
 ##### Purpose:
 To make it easy to use SigStore chain of tools. Make the Supply Chain Security for Software adoption easy. 
 #
