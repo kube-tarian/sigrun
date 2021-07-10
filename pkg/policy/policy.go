@@ -14,6 +14,10 @@ func New() *kyvernoV1.ClusterPolicy {
 		},
 		ObjectMeta: v1.ObjectMeta{
 			Name: "sigrun-verify",
+			Annotations: map[string]string{
+				"sigrun-keys":  "",
+				"sigrun-repos": "",
+			},
 		},
 		Spec: kyvernoV1.Spec{
 			Rules: []kyvernoV1.Rule{

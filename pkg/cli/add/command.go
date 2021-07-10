@@ -43,15 +43,13 @@ func Command() *cobra.Command {
 
 			ctx := context.Background()
 			var cpol *kyvernoV1.ClusterPolicy
+			var newPolicy bool
 			cpol, err = kClient.KyvernoV1().ClusterPolicies().Get(ctx, "sigrun-verify", v1.GetOptions{})
 			if err != nil {
 				// TODO handle error here properly
 				fmt.Println("Could not find policy, creating new policy...")
 				cpol = policy.New()
-				cpol, err = kClient.KyvernoV1().ClusterPolicies().Create(ctx, cpol, v1.CreateOptions{})
-				if err != nil {
-					return err
-				}
+				newPolicy = true
 			}
 
 			//TODO add validation - should check if already exists or if pubkey already exists
@@ -75,31 +73,25 @@ func Command() *cobra.Command {
 				return err
 			}
 			guidToRepo := make(map[string]*Repo)
-			err = json.NewDecoder(strings.NewReader(string(sigrunReposJSON))).Decode(&guidToRepo)
-			if err != nil {
-				return err
-			}
+			_ = json.NewDecoder(strings.NewReader(string(sigrunReposJSON))).Decode(&guidToRepo)
 			for path, conf := range pathToConfig {
 				guidToRepo[pathToGUID[path]] = &Repo{
 					ChainNo: conf.ChainNo,
 					Path:    path,
 				}
 			}
-			guideToRepoRaw, err := json.Marshal(guidToRepo)
+			guidToRepoRaw, err := json.Marshal(guidToRepo)
 			if err != nil {
 				return err
 			}
-			cpol.Annotations["sigrun-repos"] = string(guideToRepoRaw)
+			cpol.Annotations["sigrun-repos"] = base64.StdEncoding.EncodeToString(guidToRepoRaw)
 
 			sigrunKeysJSON, err := base64.StdEncoding.DecodeString(cpol.Annotations["sigrun-keys"])
 			if err != nil {
 				return err
 			}
 			guidToKeys := make(map[string]string)
-			err = json.NewDecoder(strings.NewReader(string(sigrunKeysJSON))).Decode(&guidToKeys)
-			if err != nil {
-				return err
-			}
+			_ = json.NewDecoder(strings.NewReader(string(sigrunKeysJSON))).Decode(&guidToKeys)
 			for path, conf := range pathToConfig {
 				guidToKeys[pathToGUID[path]] = conf.PublicKey
 			}
@@ -107,7 +99,7 @@ func Command() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			cpol.Annotations["sigrun-keys"] = string(guidToKeysRaw)
+			cpol.Annotations["sigrun-keys"] = base64.StdEncoding.EncodeToString(guidToKeysRaw)
 
 			// add image verification rule for each image from config for each repo
 			verifyImages := cpol.Spec.Rules[0].VerifyImages
@@ -121,9 +113,16 @@ func Command() *cobra.Command {
 			}
 			cpol.Spec.Rules[0].VerifyImages = verifyImages
 
-			_, err = kClient.KyvernoV1().ClusterPolicies().Update(ctx, cpol, v1.UpdateOptions{})
-			if err != nil {
-				return err
+			if newPolicy {
+				_, err = kClient.KyvernoV1().ClusterPolicies().Create(ctx, cpol, v1.CreateOptions{})
+				if err != nil {
+					return err
+				}
+			} else {
+				_, err = kClient.KyvernoV1().ClusterPolicies().Update(ctx, cpol, v1.UpdateOptions{})
+				if err != nil {
+					return err
+				}
 			}
 
 			return nil

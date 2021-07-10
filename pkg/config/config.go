@@ -57,7 +57,7 @@ func GetGUID(path string) (string, error) {
 		return "", err
 	}
 
-	return string(hasher.Sum(nil)), nil
+	return base64.StdEncoding.EncodeToString(hasher.Sum(nil)), nil
 }
 
 func ReadRepos(repoUrls ...string) (map[string]*Config, error) {
