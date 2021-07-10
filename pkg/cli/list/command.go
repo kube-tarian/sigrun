@@ -2,6 +2,7 @@ package list
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 
 	"github.com/devopstoday11/sigrun/pkg/policy"
@@ -37,9 +38,16 @@ func Command() *cobra.Command {
 			if err != nil {
 				fmt.Println("Could not find policy, creating new policy...")
 				cpol = policy.New()
+				cpol, err = kClient.KyvernoV1().ClusterPolicies().Create(ctx, cpol, v1.CreateOptions{})
+				if err != nil {
+					return err
+				}
 			}
-
-			fmt.Println("Sigrun-repos - " + cpol.Annotations["sigrun-repos"])
+			sigrunRepos, err := base64.StdEncoding.DecodeString(cpol.Annotations["sigrun-repos"])
+			if err != nil {
+				return err
+			}
+			fmt.Println("Sigrun-repos - " + string(sigrunRepos))
 			return nil
 		},
 	}
