@@ -33,6 +33,10 @@ func Read() (*Config, error) {
 	return &conf, nil
 }
 
+func ReadRepos(repoUrl ...string) (map[string]*Config, error) {
+	return map[string]*Config{}, nil
+}
+
 func Create(conf *Config, password string) error {
 	configF, err := os.Create(CONFIG_FILE_NAME)
 	if err != nil {

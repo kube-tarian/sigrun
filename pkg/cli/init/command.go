@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/devopstoday11/sigrun/pkg/cli/init/cluster"
+
 	"github.com/devopstoday11/sigrun/pkg/config"
 	cosignCLI "github.com/sigstore/cosign/cmd/cosign/cli"
 	"github.com/sigstore/cosign/pkg/cosign"
@@ -11,7 +13,7 @@ import (
 )
 
 func Command() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "init",
 		Short: "Initializes repository to use sigrun by creating a sigrun-config.yaml file",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
@@ -44,4 +46,8 @@ func Command() *cobra.Command {
 			}, passwordString)
 		},
 	}
+
+	cmd.AddCommand(cluster.Command())
+
+	return cmd
 }

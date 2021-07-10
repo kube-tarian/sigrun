@@ -2,8 +2,8 @@ apiVersion: kyverno.io/v1
 kind: ClusterPolicy
 metadata:
   name: sigrun-verify
-  repos:
-    - "something@somecommit"
+  annotations:
+    sigrun-repos: `["something@somecommit"]`
 spec:
   validationFailureAction: enforce
   background: false
@@ -15,6 +15,7 @@ spec:
             - Pod
       verifyImages:
         - image: "container repo path"
+          repo: "something@somecommit"
           key: |-
             -----BEGIN PUBLIC KEY-----
             MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE8nXRh950IZbRj8Ra/N9sbqOPZrfM

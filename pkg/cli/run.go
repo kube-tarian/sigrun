@@ -3,6 +3,7 @@ package cli
 import (
 	"github.com/devopstoday11/sigrun/pkg/cli/add"
 	initCmd "github.com/devopstoday11/sigrun/pkg/cli/init"
+	"github.com/devopstoday11/sigrun/pkg/cli/list"
 	"github.com/devopstoday11/sigrun/pkg/cli/sign"
 	"github.com/devopstoday11/sigrun/pkg/cli/update"
 	"github.com/spf13/cobra"
@@ -16,7 +17,7 @@ func Run() error {
 			"deployments to allow only the known Signatures.",
 	}
 
-	cli.AddCommand(initCmd.Command(), add.Command(), sign.Command(), update.Command())
+	cli.AddCommand(initCmd.Command(), list.Command(), add.Command(), sign.Command(), update.Command())
 
 	if err := cli.Execute(); err != nil {
 		return err
