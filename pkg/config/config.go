@@ -111,7 +111,7 @@ func Create(conf *Config, password string) error {
 		return err
 	}
 
-	err = os.Mkdir(".sigrun", os.ModeDir)
+	err = os.Mkdir(".sigrun", os.ModePerm)
 	if err != nil {
 		return err
 	}
@@ -121,7 +121,9 @@ func Create(conf *Config, password string) error {
 		return err
 	}
 
-	_, err = io.Copy(chainF, configF)
+	encoder = json.NewEncoder(chainF)
+	encoder.SetIndent("", "	")
+	err = encoder.Encode(conf)
 	if err != nil {
 		return err
 	}
