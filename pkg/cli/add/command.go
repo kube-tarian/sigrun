@@ -106,7 +106,7 @@ func Command() *cobra.Command {
 			for _, conf := range pathToConfig {
 				for _, confImg := range conf.Images {
 					verifyImages = append(verifyImages, &kyvernoV1.ImageVerification{
-						Image: confImg,
+						Image: confImg + "*",
 						Key:   conf.PublicKey,
 					})
 				}
