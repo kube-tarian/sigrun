@@ -15,7 +15,7 @@ import (
 func Command() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "init",
-		Short: "Initializes repository to use sigrun by creating a sigrun-config.yaml file",
+		Short: "Provides an interactive interface to create a sigrun repository",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 
 			fmt.Println("Please list all the container registry paths of images that need to be signed by sigrun")

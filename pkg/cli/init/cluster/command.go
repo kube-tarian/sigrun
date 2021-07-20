@@ -10,7 +10,7 @@ import (
 func Command() *cobra.Command {
 	return &cobra.Command{
 		Use:   "cluster",
-		Short: "Initializes cluster to use sigrun by installing a policy agent to verify images",
+		Short: "Initializes a kubernetes cluster to be a sigrun consumer",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			fmt.Println("Installing kyverno...")
 

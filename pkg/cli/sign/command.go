@@ -18,7 +18,7 @@ func Command() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "sign",
-		Short: "Signs the images related to this repo using cosign",
+		Short: "Signs all images related to a sigrun repo and pushes the signatures to the corresponding container registry",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			conf, err := config.Read()
 			if err != nil {

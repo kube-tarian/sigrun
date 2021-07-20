@@ -19,7 +19,7 @@ import (
 func Command() *cobra.Command {
 	return &cobra.Command{
 		Use:   "list",
-		Short: "List existing repos using image verification",
+		Short: "Lists metadata about sigrun repos that have been added",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 
 			kRestConf, err := genericclioptions.NewConfigFlags(true).ToRESTConfig()

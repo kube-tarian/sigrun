@@ -28,7 +28,7 @@ type Repo struct {
 func Command() *cobra.Command {
 	return &cobra.Command{
 		Use:   "add",
-		Short: "Adds the given sigrun repository to the list of allowed producers in the cluster",
+		Short: "Adds a sigrun repo to the policy agent. The config file of the sigrun repo is parsed and the policy agent is update according to the config.",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 
 			kRestConf, err := genericclioptions.NewConfigFlags(true).ToRESTConfig()

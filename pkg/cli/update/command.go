@@ -10,7 +10,7 @@ import (
 func Command() *cobra.Command {
 	return &cobra.Command{
 		Use:   "update",
-		Short: "Updates the version of the registered sigrun repos in the cluster",
+		Short: "Updates all the sigrun repos present in the policy agent. Checks the sigrun repos for updates, verifies the updates and updates the policy agent to handle the updates",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 
 			//kRestConf, err := genericclioptions.NewConfigFlags(true).ToRESTConfig()
