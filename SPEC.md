@@ -15,25 +15,28 @@ Current existing solutions can be simplified.
 
 ## How?
 For a consumer to allow images into their cluster, they will have to specifically add them to the list of allowed images along with 
-a method to verify them. This is done by parsing the "sigrun-config.json" file which is created 
+a method to verify them. This is done by parsing the config file of a sigrun repo which was created 
 by a producer. 
 
-The "sigrun-config.json" file contains a list of images container registry paths,
-along with a way to verify these images.
+The config file contains a list of images container registry paths,
+along with a way to verify those images.
+
+The config file will be named "sigrun-config.json" in a sigrun repo.
 
 All tasks related to sigrun are managed by the sigrun CLI command which can be installed by referring to the
 repository readme.
 
 ### Basic flow
 
-1. The producer creates a "sigrun-config.json" and ".sigrun" folder using the "kubectl sigrun init"
-command. The producer is asked to enter all the images and the information needed to sign and verify images.
+1. The producer creates a sigrun repo using the "kubectl sigrun init" command inside a folder, the command creates a config file
+and a directory to store the update chain (will cover this in a later section). 
+The producer is asked to enter all the images and the information needed to sign and verify images while running this command.
 
 2. The consumer initializes their cluster to verify container images using "kubectl sigrun init cluster"
 command which will add a policy agent to the cluster such as kyverno or opa. The policy agent will be used to verify the images.
 
-3. The consumer adds the list of allowed images from the producer by parsing the "sigrun-config.json"
-file created by the producer using the "kubectl sigrun add 'link to sigrun-config.json'" command.
+3. The consumer adds the list of allowed images from the producer by parsing the config file of the sigrun repo 
+created by the producer using the "kubectl sigrun add 'link to sigrun repo'" command.
 This command will create a policy which will add the images and a way to verify each image(pubkey/cert).
 
 4. The consumer try to pull an image from the producer and fails since the producer has not signed his images.
@@ -41,37 +44,37 @@ This command will create a policy which will add the images and a way to verify 
 5. The producer signs the latest images and pushes it to the container registry using the
 "kubectl sigrun sign" command.
 
-6. The consumer try to pull an image again and suceeds since the image signature has been veirified.
+6. The consumer try to pull an image again and succeeds since the image signature has been verified.
 
 ### Update chain
 
-There can be a scenario where the "sigrun-config.json" file needs to change. Examples of these scenarios include
+There can be a scenario where the sigrun config needs to change. Examples of these scenarios include
 1. A new image has to be added to the list of images
 2. A fresh pair of keys has to be added
 3. Some metadata needs to change
 
 and so on...
 
-For these scenarios we want an easy way for producers to update the file while 
+For these scenarios we want an easy way for producers to update the sigrun config while 
 allowing the consumer to verify it.
 
-This needs to be done carefully, the consumer should be able to verify that the "sigrun-config.json" has not been updated by a malicious party.
+This needs to be done carefully, the consumer should be able to verify that the config has not been updated by a malicious party.
 
-The "update chain" concept allows the producer to update the config file while allowing the consumer to verify it easily.
+The "update chain" concept allows the producer to update the config while allowing the consumer to verify it easily.
 
-When the producer wants to update the "sigrun-config.json" file,
-the producer will update the file as he wishes and then run "kubectl sigrun configure" command.
-The command will sign the new file with the credentials of the old file. Hence for a malicious entity to 
+When the producer wants to update the config,
+the producer will update the config file as he wishes and then run "kubectl sigrun configure" command.
+The command will sign the new config file with the credentials of the old config file. Hence for a malicious entity to 
 update the config file, they will need access to the existing credentials.
 
-The sigrun command creates a ".sigrun" file during initialization which is used to store the "update chain".
-At the start the ".sigrun" folder contains only the initial file "0.md", where 0 referring to the first file
+The sigrun command creates a ".sigrun" folder during repo initialization which is used to store the "update chain".
+At the start the ".sigrun" folder contains only the initial file "0.md", where 0 referring to the first config file
 created using "kubectl sigrun init". Every time "kubectl sigrun configure" is run a new file is created in ".sigrun".
 The new file will be named "1.md", "2.md" and so on. The current order of the file in the update chain is
 recorded in the "ChainNo" field in the config file.
 
 On the consumer end, the consumer can pull any new images added by the producer using the "kubectl sigrun update"
-command. This command will pull the latest sigrun files from their original links. 
+command. This command will pull the latest sigrun config from the sigrun repo. 
 
 If the file has been updated (ChainNo greater than existing), sigrun will start verifying the new config file.
 While adding a new config file using "kubectl sigrun add" the "ChainNo" and "PublicKey" fields 
@@ -87,7 +90,7 @@ If the latest file was successfully verified, the latest changes are updated to 
 
 ### Config file
 
-Following is an example "sigrun-config.json" file
+Following is an example of a sigrun config file
 ```json
 {
 	"ChainNo": 0,
@@ -103,7 +106,7 @@ Following is an example "sigrun-config.json" file
 	"Images": [
 		"docker.io/shravanss/sigrun-example"
 	],
-	"Signature": "MEUCIQC8/fd+m63dvqu/d3xd7fzG246sJxsGM7umU+qCPvp+vgIgYU+sfdJccqRShHi1uQoRR8eyOa2rutBsBr6PVZiWHy4="
+	"Signature": ""
 }
 
 ```
