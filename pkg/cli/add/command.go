@@ -46,13 +46,15 @@ func Command() *cobra.Command {
 			var newPolicy bool
 			cpol, err = kClient.KyvernoV1().ClusterPolicies().Get(ctx, "sigrun-verify", v1.GetOptions{})
 			if err != nil {
-				// TODO handle error here properly
-				fmt.Println("Could not find policy, creating new policy...")
-				cpol = policy.New()
-				newPolicy = true
+				if strings.Contains(err.Error(), "not found") {
+					fmt.Println("Could not find policy, creating new policy...")
+					cpol = policy.New()
+					newPolicy = true
+				} else {
+					return err
+				}
 			}
 
-			//TODO add validation - should check if already exists or if pubkey already exists
 			pathToConfig, err := config.ReadRepos(args...)
 			if err != nil {
 				return err
