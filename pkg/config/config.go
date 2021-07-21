@@ -1,14 +1,19 @@
 package config
 
 import (
-	"crypto/sha256"
+	"bytes"
+	"context"
 	"encoding/base64"
 	"encoding/json"
-	"io"
+	"fmt"
 	"net/http"
 	"os"
-	"path/filepath"
+	"strconv"
 	"strings"
+
+	"github.com/devopstoday11/sigrun/pkg/util"
+
+	"github.com/sigstore/cosign/pkg/cosign"
 )
 
 type Config struct {
@@ -23,13 +28,28 @@ func (c *Config) Validate() error {
 	return nil
 }
 
+func (c *Config) Sign(password string, data []byte) (string, error) {
+	signer, err := cosign.LoadECDSAPrivateKey([]byte(c.PrivateKey), []byte(password))
+	if err != nil {
+		return "", err
+	}
+
+	sig, _, err := signer.Sign(context.Background(), data)
+	if err != nil {
+		return "", err
+	}
+
+	return base64.StdEncoding.EncodeToString(sig), nil
+}
+
 const FILE_NAME = "sigrun-config.json"
 
-func Read() (*Config, error) {
-	configF, err := os.Open(FILE_NAME)
+func Get(path string) (*Config, error) {
+	configF, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
+	defer configF.Close()
 
 	var conf Config
 	err = json.NewDecoder(configF).Decode(&conf)
@@ -40,6 +60,72 @@ func Read() (*Config, error) {
 	return &conf, nil
 }
 
+func IsSame(conf1, conf2 *Config) (bool, error) {
+	conf1Raw, err := json.Marshal(conf1)
+	if err != nil {
+		return false, err
+	}
+
+	conf2Raw, err := json.Marshal(conf2)
+	if err != nil {
+		return false, err
+	}
+
+	conf1Hash, err := util.SHA256Hash(bytes.NewReader(conf1Raw))
+	if err != nil {
+		return false, err
+	}
+
+	conf2Hash, err := util.SHA256Hash(bytes.NewReader(conf2Raw))
+	if err != nil {
+		return false, err
+	}
+
+	if conf1Hash == conf2Hash {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+func Set(path string, conf *Config) error {
+	configF, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+
+	encoder := json.NewEncoder(configF)
+	encoder.SetIndent("", "	")
+	err = encoder.Encode(conf)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func GetChainHead() (*Config, error) {
+	chainFileEntries, err := os.ReadDir(".sigrun")
+	if err != nil {
+		return nil, err
+	}
+
+	var chainHeight int
+	for _, cf := range chainFileEntries {
+		chainNumRaw := strings.Replace(cf.Name(), ".json", "", -1)
+		chainNum, err := strconv.Atoi(chainNumRaw)
+		if err != nil {
+			return nil, err
+		}
+
+		if chainNum > chainHeight {
+			chainHeight = chainNum
+		}
+	}
+
+	return Get(".sigrun/" + fmt.Sprint(chainHeight) + ".json")
+}
+
 func GetGUID(path string) (string, error) {
 	genesisConfPath := strings.Replace(path, FILE_NAME, ".sigrun/0.json", -1)
 
@@ -48,13 +134,7 @@ func GetGUID(path string) (string, error) {
 		return "", err
 	}
 
-	hasher := sha256.New()
-	_, err = io.Copy(hasher, resp.Body)
-	if err != nil {
-		return "", err
-	}
-
-	return base64.StdEncoding.EncodeToString(hasher.Sum(nil)), nil
+	return util.SHA256Hash(resp.Body)
 }
 
 // TODO should be repo urls, currentl config file urls
@@ -78,33 +158,9 @@ func ReadRepos(repoUrls ...string) (map[string]*Config, error) {
 }
 
 func Create(conf *Config) error {
-	configF, err := os.Create(FILE_NAME)
-	if err != nil {
-		return err
-	}
-	conf.Signature = ""
 	conf.ChainNo = 0
-	// TODO remove commend after configure has been updated
-	//confRaw, err := json.Marshal(conf)
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//signer, err := cosign.LoadECDSAPrivateKey([]byte(conf.PrivateKey), []byte(password))
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//sig, _, err := signer.Sign(context.Background(), confRaw)
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//conf.Signature = base64.StdEncoding.EncodeToString(sig)
-
-	encoder := json.NewEncoder(configF)
-	encoder.SetIndent("", "	")
-	err = encoder.Encode(conf)
+	conf.Signature = ""
+	err := Set(FILE_NAME, conf)
 	if err != nil {
 		return err
 	}
@@ -114,17 +170,5 @@ func Create(conf *Config) error {
 		return err
 	}
 
-	chainF, err := os.Create(filepath.Join(".sigrun", "0.json"))
-	if err != nil {
-		return err
-	}
-
-	encoder = json.NewEncoder(chainF)
-	encoder.SetIndent("", "	")
-	err = encoder.Encode(conf)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return Set(".sigrun/0.json", conf)
 }

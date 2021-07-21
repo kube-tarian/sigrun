@@ -3,8 +3,7 @@ kind: ClusterPolicy
 metadata:
   name: sigrun-verify
   annotations:
-    sigrun-repos: `{"guid":{"chain_no":"0","path":"somepath"}`  # base64 encoded - guid is hash of chain_no 0
-    sigrun-keys: `{"guid":"pubkey"}` # base64 encoded
+    sigrun-repos-metadata: `{"guid":{"chain_no":"0","path":"somepath","pubKey":"somepubk"}`  # base64 encoded - guid is hash of chain_no 0
 spec:
   validationFailureAction: enforce
   background: false
@@ -16,8 +15,4 @@ spec:
             - Pod
       verifyImages:
         - image: "container repo path"
-          key: |-
-            -----BEGIN PUBLIC KEY-----
-            MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE8nXRh950IZbRj8Ra/N9sbqOPZrfM
-            5/KAQN0/KjHcorm/J5yctVd7iEcnessRQjU917hmKO6JWVGHpDguIyakZA==
-            -----END PUBLIC KEY-----
+          key: "somepubk"
