@@ -38,3 +38,9 @@ func New() *kyvernoV1.ClusterPolicy {
 		Status: kyvernoV1.PolicyStatus{},
 	}
 }
+
+type RepoMetaData struct {
+	ChainNo   int64
+	Path      string
+	PublicKey string
+}

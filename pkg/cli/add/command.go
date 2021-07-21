@@ -20,12 +20,6 @@ import (
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 
-type RepoMetaData struct {
-	ChainNo   int64
-	Path      string
-	PublicKey string
-}
-
 func Command() *cobra.Command {
 	return &cobra.Command{
 		Use:   "add",
@@ -72,7 +66,7 @@ func Command() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			guidToRepoMeta := make(map[string]*RepoMetaData)
+			guidToRepoMeta := make(map[string]*policy.RepoMetaData)
 			_ = json.NewDecoder(strings.NewReader(string(sigrunReposJSON))).Decode(&guidToRepoMeta)
 
 			pubKToGUID := make(map[string]string)
@@ -89,7 +83,7 @@ func Command() *cobra.Command {
 					return fmt.Errorf("sigrun repo at " + path + " has the same public key as a sigrun repo that has already been added with guid " + guid)
 				}
 
-				guidToRepoMeta[pathToGUID[path]] = &RepoMetaData{
+				guidToRepoMeta[pathToGUID[path]] = &policy.RepoMetaData{
 					ChainNo:   conf.ChainNo,
 					Path:      path,
 					PublicKey: conf.PublicKey,
