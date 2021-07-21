@@ -5,6 +5,8 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+const NAME = "sigrun-verify"
+
 func New() *kyvernoV1.ClusterPolicy {
 	background := false
 	return &kyvernoV1.ClusterPolicy{
@@ -13,7 +15,7 @@ func New() *kyvernoV1.ClusterPolicy {
 			APIVersion: "kyverno.io/v1",
 		},
 		ObjectMeta: v1.ObjectMeta{
-			Name: "sigrun-verify",
+			Name: NAME,
 			Annotations: map[string]string{
 				"sigrun-keys":  "",
 				"sigrun-repos": "",

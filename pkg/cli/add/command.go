@@ -44,7 +44,7 @@ func Command() *cobra.Command {
 			ctx := context.Background()
 			var cpol *kyvernoV1.ClusterPolicy
 			var newPolicy bool
-			cpol, err = kClient.KyvernoV1().ClusterPolicies().Get(ctx, "sigrun-verify", v1.GetOptions{})
+			cpol, err = kClient.KyvernoV1().ClusterPolicies().Get(ctx, policy.NAME, v1.GetOptions{})
 			if err != nil {
 				if strings.Contains(err.Error(), "not found") {
 					fmt.Println("Could not find policy, creating new policy...")

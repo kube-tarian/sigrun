@@ -5,6 +5,12 @@ Sign your artifacts source code or container images using Sigstore chain of tool
 #
 
 ### Install
+
+##### Dependencies
+Before installing the application the following dependencies need to be installed:
+1. Kubernetes command line application `kubectl`
+2. Golang version greater than 1.16
+
 ```
 go install cmd/sigrun/kubectl-sigrun.go
 ```
