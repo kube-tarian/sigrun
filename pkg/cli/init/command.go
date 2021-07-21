@@ -26,14 +26,8 @@ func Command() *cobra.Command {
 			}
 			images := strings.Split(imagePathsLine, ",")
 
-			var passwordString string
 			keys, err := cosign.GenerateKeyPair(func(b bool) ([]byte, error) {
-				password, err := cosignCLI.GetPass(b)
-				if err != nil {
-					return nil, err
-				}
-				passwordString = string(password)
-				return password, nil
+				return cosignCLI.GetPass(b)
 			})
 			if err != nil {
 				return err
@@ -43,7 +37,7 @@ func Command() *cobra.Command {
 				PublicKey:  string(keys.PublicBytes),
 				PrivateKey: string(keys.PrivateBytes),
 				Images:     images,
-			}, passwordString)
+			})
 		},
 	}
 

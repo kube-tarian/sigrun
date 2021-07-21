@@ -1,7 +1,6 @@
 package config
 
 import (
-	"context"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
@@ -10,8 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/sigstore/cosign/pkg/cosign"
 )
 
 type Config struct {
@@ -79,30 +76,30 @@ func ReadRepos(repoUrls ...string) (map[string]*Config, error) {
 	return pathToConfig, nil
 }
 
-func Create(conf *Config, password string) error {
+func Create(conf *Config) error {
 	configF, err := os.Create(CONFIG_FILE_NAME)
 	if err != nil {
 		return err
 	}
 	conf.Signature = ""
 	conf.ChainNo = 0
-
-	confRaw, err := json.Marshal(conf)
-	if err != nil {
-		return err
-	}
-
-	signer, err := cosign.LoadECDSAPrivateKey([]byte(conf.PrivateKey), []byte(password))
-	if err != nil {
-		return err
-	}
-
-	sig, _, err := signer.Sign(context.Background(), confRaw)
-	if err != nil {
-		return err
-	}
-
-	conf.Signature = base64.StdEncoding.EncodeToString(sig)
+	// TODO remove commend after configure has been updated
+	//confRaw, err := json.Marshal(conf)
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//signer, err := cosign.LoadECDSAPrivateKey([]byte(conf.PrivateKey), []byte(password))
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//sig, _, err := signer.Sign(context.Background(), confRaw)
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//conf.Signature = base64.StdEncoding.EncodeToString(sig)
 
 	encoder := json.NewEncoder(configF)
 	encoder.SetIndent("", "	")
