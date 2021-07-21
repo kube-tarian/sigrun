@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/devopstoday11/sigrun/pkg/policy"
+	"github.com/tidwall/pretty"
 
-	kyvernoV1 "github.com/kyverno/kyverno/pkg/api/kyverno/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/spf13/cobra"
@@ -33,21 +33,16 @@ func Command() *cobra.Command {
 			}
 
 			ctx := context.Background()
-			var cpol *kyvernoV1.ClusterPolicy
-			cpol, err = kClient.KyvernoV1().ClusterPolicies().Get(ctx, policy.NAME, v1.GetOptions{})
-			if err != nil {
-				fmt.Println("Could not find policy, creating new policy...")
-				cpol = policy.New()
-				cpol, err = kClient.KyvernoV1().ClusterPolicies().Create(ctx, cpol, v1.CreateOptions{})
-				if err != nil {
-					return err
-				}
-			}
-			sigrunRepos, err := base64.StdEncoding.DecodeString(cpol.Annotations["sigrun-repos"])
+			cpol, err := kClient.KyvernoV1().ClusterPolicies().Get(ctx, policy.NAME, v1.GetOptions{})
 			if err != nil {
 				return err
 			}
-			fmt.Println("Sigrun-repos - " + string(sigrunRepos))
+			sigrunRepos, err := base64.StdEncoding.DecodeString(cpol.Annotations["sigrun-repos-metadata"])
+			if err != nil {
+				return err
+			}
+
+			fmt.Println("Sigrun-repos:\n" + string(pretty.Pretty(sigrunRepos)))
 			return nil
 		},
 	}
