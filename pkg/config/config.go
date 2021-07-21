@@ -23,10 +23,10 @@ func (c *Config) Validate() error {
 	return nil
 }
 
-const CONFIG_FILE_NAME = "sigrun-config.json"
+const FILE_NAME = "sigrun-config.json"
 
 func Read() (*Config, error) {
-	configF, err := os.Open(CONFIG_FILE_NAME)
+	configF, err := os.Open(FILE_NAME)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +41,7 @@ func Read() (*Config, error) {
 }
 
 func GetGUID(path string) (string, error) {
-	genesisConfPath := strings.Replace(path, CONFIG_FILE_NAME, ".sigrun/0.json", -1)
+	genesisConfPath := strings.Replace(path, FILE_NAME, ".sigrun/0.json", -1)
 
 	resp, err := http.Get(genesisConfPath)
 	if err != nil {
@@ -57,6 +57,7 @@ func GetGUID(path string) (string, error) {
 	return base64.StdEncoding.EncodeToString(hasher.Sum(nil)), nil
 }
 
+// TODO should be repo urls, currentl config file urls
 func ReadRepos(repoUrls ...string) (map[string]*Config, error) {
 	pathToConfig := make(map[string]*Config)
 	for _, path := range repoUrls {
@@ -77,7 +78,7 @@ func ReadRepos(repoUrls ...string) (map[string]*Config, error) {
 }
 
 func Create(conf *Config) error {
-	configF, err := os.Create(CONFIG_FILE_NAME)
+	configF, err := os.Create(FILE_NAME)
 	if err != nil {
 		return err
 	}

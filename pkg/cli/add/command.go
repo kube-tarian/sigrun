@@ -20,9 +20,10 @@ import (
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 
-type Repo struct {
-	ChainNo int64
-	Path    string
+type RepoMetaData struct {
+	ChainNo   int64
+	Path      string
+	PublicKey string
 }
 
 func Command() *cobra.Command {
@@ -30,6 +31,11 @@ func Command() *cobra.Command {
 		Use:   "add",
 		Short: "Adds a sigrun repo to the policy agent. The config file of the sigrun repo is parsed and the policy agent is update according to the config.",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
+
+			err = validateAddInput(args...)
+			if err != nil {
+				return err
+			}
 
 			kRestConf, err := genericclioptions.NewConfigFlags(true).ToRESTConfig()
 			if err != nil {
@@ -42,17 +48,9 @@ func Command() *cobra.Command {
 			}
 
 			ctx := context.Background()
-			var cpol *kyvernoV1.ClusterPolicy
-			var newPolicy bool
-			cpol, err = kClient.KyvernoV1().ClusterPolicies().Get(ctx, policy.NAME, v1.GetOptions{})
+			cpol, err := kClient.KyvernoV1().ClusterPolicies().Get(ctx, policy.NAME, v1.GetOptions{})
 			if err != nil {
-				if strings.Contains(err.Error(), "not found") {
-					fmt.Println("Could not find policy, creating new policy...")
-					cpol = policy.New()
-					newPolicy = true
-				} else {
-					return err
-				}
+				return err
 			}
 
 			pathToConfig, err := config.ReadRepos(args...)
@@ -70,38 +68,38 @@ func Command() *cobra.Command {
 			}
 
 			// add repos to sigrun-repos annotation
-			sigrunReposJSON, err := base64.StdEncoding.DecodeString(cpol.Annotations["sigrun-repos"])
+			sigrunReposJSON, err := base64.StdEncoding.DecodeString(cpol.Annotations["sigrun-repos-metadata"])
 			if err != nil {
 				return err
 			}
-			guidToRepo := make(map[string]*Repo)
-			_ = json.NewDecoder(strings.NewReader(string(sigrunReposJSON))).Decode(&guidToRepo)
+			guidToRepoMeta := make(map[string]*RepoMetaData)
+			_ = json.NewDecoder(strings.NewReader(string(sigrunReposJSON))).Decode(&guidToRepoMeta)
+
+			pubKToGUID := make(map[string]string)
+			for guid, repoMD := range guidToRepoMeta {
+				pubKToGUID[repoMD.PublicKey] = guid
+			}
+
 			for path, conf := range pathToConfig {
-				guidToRepo[pathToGUID[path]] = &Repo{
-					ChainNo: conf.ChainNo,
-					Path:    path,
+				if guidToRepoMeta[pathToGUID[path]] != nil {
+					return fmt.Errorf("sigrun repo at " + path + " with guid " + pathToGUID[path] + " has already been added")
+				}
+
+				if guid := pubKToGUID[conf.PublicKey]; guid != "" {
+					return fmt.Errorf("sigrun repo at " + path + " has the same public key as a sigrun repo that has already been added with guid " + guid)
+				}
+
+				guidToRepoMeta[pathToGUID[path]] = &RepoMetaData{
+					ChainNo:   conf.ChainNo,
+					Path:      path,
+					PublicKey: conf.PublicKey,
 				}
 			}
-			guidToRepoRaw, err := json.Marshal(guidToRepo)
+			guidToRepoRaw, err := json.Marshal(guidToRepoMeta)
 			if err != nil {
 				return err
 			}
-			cpol.Annotations["sigrun-repos"] = base64.StdEncoding.EncodeToString(guidToRepoRaw)
-
-			sigrunKeysJSON, err := base64.StdEncoding.DecodeString(cpol.Annotations["sigrun-keys"])
-			if err != nil {
-				return err
-			}
-			guidToKeys := make(map[string]string)
-			_ = json.NewDecoder(strings.NewReader(string(sigrunKeysJSON))).Decode(&guidToKeys)
-			for path, conf := range pathToConfig {
-				guidToKeys[pathToGUID[path]] = conf.PublicKey
-			}
-			guidToKeysRaw, err := json.Marshal(guidToKeys)
-			if err != nil {
-				return err
-			}
-			cpol.Annotations["sigrun-keys"] = base64.StdEncoding.EncodeToString(guidToKeysRaw)
+			cpol.Annotations["sigrun-repos-metadata"] = base64.StdEncoding.EncodeToString(guidToRepoRaw)
 
 			// add image verification rule for each image from config for each repo
 			verifyImages := cpol.Spec.Rules[0].VerifyImages
@@ -115,19 +113,22 @@ func Command() *cobra.Command {
 			}
 			cpol.Spec.Rules[0].VerifyImages = verifyImages
 
-			if newPolicy {
-				_, err = kClient.KyvernoV1().ClusterPolicies().Create(ctx, cpol, v1.CreateOptions{})
-				if err != nil {
-					return err
-				}
-			} else {
-				_, err = kClient.KyvernoV1().ClusterPolicies().Update(ctx, cpol, v1.UpdateOptions{})
-				if err != nil {
-					return err
-				}
+			_, err = kClient.KyvernoV1().ClusterPolicies().Update(ctx, cpol, v1.UpdateOptions{})
+			if err != nil {
+				return err
 			}
 
 			return nil
 		},
 	}
+}
+
+func validateAddInput(args ...string) error {
+	for i, arg := range args {
+		if arg == "" {
+			return fmt.Errorf("empty path found at position " + fmt.Sprint(i+1))
+		}
+	}
+
+	return nil
 }
