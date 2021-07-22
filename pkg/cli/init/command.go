@@ -16,7 +16,13 @@ func Command() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "init",
 		Short: "Provides an interactive interface to create a sigrun repository",
-		RunE: func(cmd *cobra.Command, args []string) (err error) {
+		RunE: func(cmd *cobra.Command, args []string) error {
+			fmt.Println("Please enter the name of this sigrun repo")
+			var moniker string
+			_, err := fmt.Scanf("%s", &moniker)
+			if err != nil {
+				return err
+			}
 
 			fmt.Println("Please list all the container registry paths of images that need to be signed by sigrun")
 			var imagePathsLine string
@@ -34,6 +40,7 @@ func Command() *cobra.Command {
 			}
 
 			return config.Create(&config.Config{
+				Moniker:    moniker,
 				PublicKey:  string(keys.PublicBytes),
 				PrivateKey: string(keys.PrivateBytes),
 				Images:     images,
