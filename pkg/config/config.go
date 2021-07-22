@@ -68,7 +68,13 @@ func VerifySignature(pubKRaw string, conf *Config) error {
 		Key:     pubK,
 		HashAlg: crypto.SHA256,
 	}
-	return verifier.Verify(context.Background(), data, []byte(sig))
+
+	sigRaw, err := base64.StdEncoding.DecodeString(sig)
+	if err != nil {
+		return err
+	}
+
+	return verifier.Verify(context.Background(), data, sigRaw)
 }
 
 const FILE_NAME = "sigrun-config.json"
