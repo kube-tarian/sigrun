@@ -22,7 +22,6 @@ func Command() *cobra.Command {
 		Use:   "cluster",
 		Short: "Initializes a kubernetes cluster to be a sigrun consumer",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			fmt.Println("Attempting to install default policy agent(kyverno)...")
 			kRestConf, err := genericclioptions.NewConfigFlags(true).ToRESTConfig()
 			if err != nil {
 				return err
@@ -42,12 +41,12 @@ func initKyverno(kRestConf *rest.Config) error {
 	ctx := context.Background()
 	cpol, err := kClient.KyvernoV1().ClusterPolicies().Get(ctx, policy.NAME, v1.GetOptions{})
 	if err != nil {
-		if !strings.Contains(err.Error(), "not found") {
+		if !strings.Contains(err.Error(), "not find") {
 			return err
 		}
 	} else {
 		if cpol.Name == policy.NAME {
-			fmt.Println("Cluster has already been initialized")
+			return fmt.Errorf("Cluster has already been initialized")
 		}
 	}
 
