@@ -3,6 +3,7 @@ package config
 import (
 	"bytes"
 	"context"
+	"crypto"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -10,6 +11,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/sigstore/sigstore/pkg/signature"
 
 	"github.com/devopstoday11/sigrun/pkg/util"
 
@@ -28,7 +31,13 @@ func (c *Config) Validate() error {
 	return nil
 }
 
-func (c *Config) Sign(password string, data []byte) (string, error) {
+func (c *Config) Sign(password string, conf *Config) (string, error) {
+	conf.Signature = ""
+	data, err := json.Marshal(conf)
+	if err != nil {
+		return "", err
+	}
+
 	signer, err := cosign.LoadECDSAPrivateKey([]byte(c.PrivateKey), []byte(password))
 	if err != nil {
 		return "", err
@@ -40,6 +49,24 @@ func (c *Config) Sign(password string, data []byte) (string, error) {
 	}
 
 	return base64.StdEncoding.EncodeToString(sig), nil
+}
+
+func VerifySignature(pubKRaw string, conf *Config) error {
+	sig := conf.Signature
+	conf.Signature = ""
+	data, err := json.Marshal(conf)
+	if err != nil {
+		return err
+	}
+	pubK, err := cosign.PemToECDSAKey([]byte(pubKRaw))
+	if err != nil {
+		return err
+	}
+	verifier := signature.ECDSAVerifier{
+		Key:     pubK,
+		HashAlg: crypto.SHA256,
+	}
+	return verifier.Verify(context.Background(), data, []byte(sig))
 }
 
 const FILE_NAME = "sigrun-config.json"
@@ -171,4 +198,25 @@ func Create(conf *Config) error {
 	}
 
 	return Set(".sigrun/0.json", conf)
+}
+
+func VerifyChain(oldPubK, oldPath string, oldChainNo, newChainNo int64) error {
+	currentChainNo := oldChainNo + 1
+	prevPubK := oldPubK
+
+	for currentChainNo > newChainNo {
+		currPath := strings.Replace(oldPath, FILE_NAME, ".sigrun/"+fmt.Sprint(currentChainNo)+".json", -1)
+		currConf, err := Get(currPath)
+		if err != nil {
+			return err
+		}
+		err = VerifySignature(prevPubK, currConf)
+		if err != nil {
+			return err
+		}
+		prevPubK = currConf.PublicKey
+		currentChainNo = currConf.ChainNo + 1
+	}
+
+	return nil
 }

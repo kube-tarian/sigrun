@@ -2,16 +2,12 @@ package add
 
 import (
 	"context"
-	"encoding/base64"
-	"encoding/json"
 	"fmt"
-	"strings"
 
 	"github.com/devopstoday11/sigrun/pkg/config"
 
 	"github.com/devopstoday11/sigrun/pkg/policy"
 
-	kyvernoV1 "github.com/kyverno/kyverno/pkg/api/kyverno/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/spf13/cobra"
@@ -61,51 +57,12 @@ func Command() *cobra.Command {
 				pathToGUID[path] = guid
 			}
 
-			// add repos to sigrun-repos annotation
-			sigrunReposJSON, err := base64.StdEncoding.DecodeString(cpol.Annotations["sigrun-repos-metadata"])
-			if err != nil {
-				return err
-			}
-			guidToRepoMeta := make(map[string]*policy.RepoMetaData)
-			_ = json.NewDecoder(strings.NewReader(string(sigrunReposJSON))).Decode(&guidToRepoMeta)
-
-			pubKToGUID := make(map[string]string)
-			for guid, repoMD := range guidToRepoMeta {
-				pubKToGUID[repoMD.PublicKey] = guid
-			}
-
 			for path, conf := range pathToConfig {
-				if guidToRepoMeta[pathToGUID[path]] != nil {
-					return fmt.Errorf("sigrun repo at " + path + " with guid " + pathToGUID[path] + " has already been added")
-				}
-
-				if guid := pubKToGUID[conf.PublicKey]; guid != "" {
-					return fmt.Errorf("sigrun repo at " + path + " has the same public key as a sigrun repo that has already been added with guid " + guid)
-				}
-
-				guidToRepoMeta[pathToGUID[path]] = &policy.RepoMetaData{
-					ChainNo:   conf.ChainNo,
-					Path:      path,
-					PublicKey: conf.PublicKey,
+				cpol, err = policy.AddRepo(cpol, pathToGUID[path], path, conf)
+				if err != nil {
+					return err
 				}
 			}
-			guidToRepoRaw, err := json.Marshal(guidToRepoMeta)
-			if err != nil {
-				return err
-			}
-			cpol.Annotations["sigrun-repos-metadata"] = base64.StdEncoding.EncodeToString(guidToRepoRaw)
-
-			// add image verification rule for each image from config for each repo
-			verifyImages := cpol.Spec.Rules[0].VerifyImages
-			for _, conf := range pathToConfig {
-				for _, confImg := range conf.Images {
-					verifyImages = append(verifyImages, &kyvernoV1.ImageVerification{
-						Image: confImg + "*",
-						Key:   conf.PublicKey,
-					})
-				}
-			}
-			cpol.Spec.Rules[0].VerifyImages = verifyImages
 
 			_, err = kClient.KyvernoV1().ClusterPolicies().Update(ctx, cpol, v1.UpdateOptions{})
 			if err != nil {

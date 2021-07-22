@@ -1,7 +1,6 @@
 package configure
 
 import (
-	"encoding/json"
 	"fmt"
 
 	cosignCLI "github.com/sigstore/cosign/cmd/cosign/cli"
@@ -41,11 +40,7 @@ func Command() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			confRaw, err := json.Marshal(conf)
-			if err != nil {
-				return err
-			}
-			sig, err := oldConf.Sign(string(password), confRaw)
+			sig, err := oldConf.Sign(string(password), conf)
 			if err != nil {
 				return err
 			}

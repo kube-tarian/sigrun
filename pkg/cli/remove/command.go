@@ -2,15 +2,10 @@ package remove
 
 import (
 	"context"
-	"encoding/base64"
-	"encoding/json"
-	"fmt"
-	"strings"
 
 	"github.com/devopstoday11/sigrun/pkg/config"
 
 	"github.com/devopstoday11/sigrun/pkg/policy"
-	kyvernoV1 "github.com/kyverno/kyverno/pkg/api/kyverno/v1"
 	kyvernoclient "github.com/kyverno/kyverno/pkg/client/clientset/versioned"
 	"github.com/spf13/cobra"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -39,39 +34,17 @@ func Command() *cobra.Command {
 				return err
 			}
 
-			sigrunReposJSON, err := base64.StdEncoding.DecodeString(cpol.Annotations["sigrun-repos-metadata"])
-			if err != nil {
-				return err
-			}
-			guidToRepoMeta := make(map[string]*policy.RepoMetaData)
-			_ = json.NewDecoder(strings.NewReader(string(sigrunReposJSON))).Decode(&guidToRepoMeta)
-			verifyImages := cpol.Spec.Rules[0].VerifyImages
 			for _, path := range args {
 				guid, err := config.GetGUID(path)
 				if err != nil {
 					return err
 				}
 
-				if guidToRepoMeta[guid] == nil {
-					return fmt.Errorf("sigrun repo at " + path + " with guid " + guid + " does not exist ")
+				cpol, err = policy.RemoveRepo(cpol, guid)
+				if err != nil {
+					return err
 				}
-
-				var buf []*kyvernoV1.ImageVerification
-				for _, vi := range verifyImages {
-					if vi.Key != guidToRepoMeta[guid].PublicKey {
-						buf = append(buf, vi)
-					}
-				}
-				verifyImages = buf
-
-				delete(guidToRepoMeta, guid)
 			}
-			guidToRepoRaw, err := json.Marshal(guidToRepoMeta)
-			if err != nil {
-				return err
-			}
-			cpol.Annotations["sigrun-repos-metadata"] = base64.StdEncoding.EncodeToString(guidToRepoRaw)
-			cpol.Spec.Rules[0].VerifyImages = verifyImages
 
 			_, err = kClient.KyvernoV1().ClusterPolicies().Update(ctx, cpol, v1.UpdateOptions{})
 			if err != nil {

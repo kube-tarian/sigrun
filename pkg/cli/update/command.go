@@ -1,9 +1,18 @@
 package update
 
 import (
-	"github.com/devopstoday11/sigrun/pkg/config"
+	"context"
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
+	"strings"
 
-	kyvernoV1 "github.com/kyverno/kyverno/pkg/api/kyverno/v1"
+	"github.com/devopstoday11/sigrun/pkg/config"
+	"github.com/devopstoday11/sigrun/pkg/policy"
+	kyvernoclient "github.com/kyverno/kyverno/pkg/client/clientset/versioned"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/cli-runtime/pkg/genericclioptions"
+
 	"github.com/spf13/cobra"
 )
 
@@ -13,115 +22,65 @@ func Command() *cobra.Command {
 		Short: "Updates all the sigrun repos present in the policy agent. Checks the sigrun repos for updates, verifies the updates and updates the policy agent to handle the updates",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 
-			//kRestConf, err := genericclioptions.NewConfigFlags(true).ToRESTConfig()
-			//if err != nil {
-			//	return err
-			//}
-			//
-			//kClient, err := kyvernoclient.NewForConfig(kRestConf)
-			//if err != nil {
-			//	return err
-			//}
-			//
-			//ctx := context.Background()
-			//var cpol *kyvernoV1.ClusterPolicy
-			//cpol, err = kClient.KyvernoV1().ClusterPolicies().Get(ctx, policy.NAME, v1.GetOptions{})
-			//if err != nil {
-			//	fmt.Println("Could not find policy, creating new policy...")
-			//	cpol = policy.New()
-			//}
-			//
-			//var repos []string
-			//err = json.NewDecoder(strings.NewReader(cpol.Annotations["sigrun-repos"])).Decode(&repos)
-			//if err != nil {
-			//	return err
-			//}
-			//
-			//reposToCommit := make(map[string]string)
-			//for _, repoS := range repos {
-			//	parts := strings.Split(repoS, "@")
-			//	reposToCommit[parts[0]] = parts[1]
-			//}
-			//for _, repoS := range args {
-			//	parts := strings.Split(repoS, "@")
-			//	err = removeRepoImageVerification(parts[0]+"@"+reposToCommit[parts[0]], cpol)
-			//	if err != nil {
-			//		return err
-			//	}
-			//	delete(reposToCommit, parts[0])
-			//	err = addRepoImageVerification(repoS, cpol)
-			//	if err != nil {
-			//		return err
-			//	}
-			//	reposToCommit[parts[0]] = parts[1]
-			//}
-			//
-			//var updatedRepos []string
-			//for repo, commit := range reposToCommit {
-			//	updatedRepos = append(updatedRepos, repo+"@"+commit)
-			//}
-			//
-			//reposRaw, err := json.Marshal(updatedRepos)
-			//if err != nil {
-			//	return err
-			//}
-			//cpol.Annotations["sigrun-repos"] = string(reposRaw)
-			//
-			//_, err = kClient.KyvernoV1().ClusterPolicies().Update(ctx, cpol, v1.UpdateOptions{})
-			//if err != nil {
-			//	return err
-			//}
+			kRestConf, err := genericclioptions.NewConfigFlags(true).ToRESTConfig()
+			if err != nil {
+				return err
+			}
+
+			kClient, err := kyvernoclient.NewForConfig(kRestConf)
+			if err != nil {
+				return err
+			}
+
+			ctx := context.Background()
+			cpol, err := kClient.KyvernoV1().ClusterPolicies().Get(ctx, policy.NAME, v1.GetOptions{})
+			if err != nil {
+				return err
+			}
+
+			// add repos to sigrun-repos annotation
+			sigrunReposJSON, err := base64.StdEncoding.DecodeString(cpol.Annotations["sigrun-repos-metadata"])
+			if err != nil {
+				return err
+			}
+			guidToRepoMeta := make(map[string]*policy.RepoMetaData)
+			_ = json.NewDecoder(strings.NewReader(string(sigrunReposJSON))).Decode(&guidToRepoMeta)
+			for guid, md := range guidToRepoMeta {
+				confMap, err := config.ReadRepos(md.Path)
+				if err != nil {
+					return err
+				}
+				conf := confMap[md.Path]
+
+				if conf.ChainNo > md.ChainNo {
+					fmt.Println("verifying sigrun repo with guid " + guid + " from chain no " + fmt.Sprint(md.ChainNo) + " to " + fmt.Sprint(conf.ChainNo))
+
+					err = config.VerifyChain(md.PublicKey, md.Path, md.ChainNo, conf.ChainNo)
+					if err != nil {
+						return err
+					}
+
+					fmt.Println("updating sigrun repo with guid " + guid + " from chain no " + fmt.Sprint(md.ChainNo) + " to " + fmt.Sprint(conf.ChainNo))
+					cpol, err = policy.RemoveRepo(cpol, guid)
+					if err != nil {
+						return err
+					}
+
+					cpol, err = policy.AddRepo(cpol, guid, md.Path, conf)
+					if err != nil {
+						return err
+					}
+				} else {
+					fmt.Println("sigrun repo with guid " + guid + " is already upto date")
+				}
+			}
+
+			_, err = kClient.KyvernoV1().ClusterPolicies().Update(ctx, cpol, v1.UpdateOptions{})
+			if err != nil {
+				return err
+			}
 
 			return nil
 		},
 	}
-}
-
-func removeRepoImageVerification(repo string, cpol *kyvernoV1.ClusterPolicy) error {
-	repoToConfig, err := config.ReadRepos(repo)
-	if err != nil {
-		return err
-	}
-	verifyImages := cpol.Spec.Rules[0].VerifyImages
-	var pubkeyToImages = make(map[string][]string)
-	for _, verifyImage := range verifyImages {
-		pubkeyToImages[verifyImage.Key] = append(pubkeyToImages[verifyImage.Key], verifyImage.Image)
-	}
-
-	for _, conf := range repoToConfig {
-		delete(pubkeyToImages, conf.PublicKey)
-	}
-
-	verifyImages = []*kyvernoV1.ImageVerification{}
-	for key, images := range pubkeyToImages {
-		for _, image := range images {
-			verifyImages = append(verifyImages, &kyvernoV1.ImageVerification{
-				Image: image,
-				Key:   key,
-			})
-		}
-	}
-
-	cpol.Spec.Rules[0].VerifyImages = verifyImages
-
-	return nil
-}
-
-func addRepoImageVerification(repo string, cpol *kyvernoV1.ClusterPolicy) error {
-	repoToConfig, err := config.ReadRepos(repo)
-	if err != nil {
-		return err
-	}
-	verifyImages := cpol.Spec.Rules[0].VerifyImages
-	for _, conf := range repoToConfig {
-		for _, confImg := range conf.Images {
-			verifyImages = append(verifyImages, &kyvernoV1.ImageVerification{
-				Image: confImg,
-				Key:   conf.PublicKey,
-			})
-		}
-	}
-	cpol.Spec.Rules[0].VerifyImages = verifyImages
-
-	return nil
 }
