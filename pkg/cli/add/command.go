@@ -21,7 +21,6 @@ func Command() *cobra.Command {
 		Use:   "add",
 		Short: "Adds a sigrun repo to the policy agent. The config file of the sigrun repo is parsed and the policy agent is update according to the config.",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-
 			err = validateAddInput(args...)
 			if err != nil {
 				return err
