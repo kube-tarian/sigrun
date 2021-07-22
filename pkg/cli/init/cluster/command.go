@@ -51,7 +51,7 @@ func initKyverno(kRestConf *rest.Config) error {
 	}
 
 	fmt.Println("Installing default policy agent(kyverno)...")
-	err = exec.Command("kubectl", "create", "-f", "https://raw.githubusercontent.com/kyverno/kyverno/main/definitions/install.yaml").Run()
+	err = exec.Command("kubectl", "create", "-f", "https://raw.githubusercontent.com/kyverno/kyverno/13caaed8b778a977ceed7c041a83a5642ff98cf5/definitions/install.yaml").Run()
 	if err != nil {
 		return err
 	}
