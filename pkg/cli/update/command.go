@@ -54,8 +54,7 @@ func Command() *cobra.Command {
 
 				if conf.ChainNo > md.ChainNo {
 					fmt.Println("verifying sigrun repo with guid " + guid + " and moniker " + md.Moniker + " from chain no " + fmt.Sprint(md.ChainNo) + " to " + fmt.Sprint(conf.ChainNo))
-
-					err = config.VerifyChain(md.PublicKey, md.Path, md.ChainNo, conf.ChainNo)
+					err = config.VerifyChain(md.PublicKey, md.Path, md.ChainNo, conf)
 					if err != nil {
 						return err
 					}

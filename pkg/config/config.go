@@ -59,6 +59,7 @@ func VerifySignature(pubKRaw string, conf *Config) error {
 	if err != nil {
 		return err
 	}
+	conf.Signature = sig
 	pubK, err := cosign.PemToECDSAKey([]byte(pubKRaw))
 	if err != nil {
 		return err
@@ -201,22 +202,34 @@ func Create(conf *Config) error {
 	return Set(".sigrun/0.json", conf)
 }
 
-func VerifyChain(oldPubK, oldPath string, oldChainNo, newChainNo int64) error {
+func VerifyChain(oldPubK, oldPath string, oldChainNo int64, newConf *Config) error {
 	currentChainNo := oldChainNo + 1
 	prevPubK := oldPubK
 
-	for currentChainNo > newChainNo {
+	var currConf *Config
+	var err error
+	for currentChainNo <= newConf.ChainNo {
 		currPath := strings.Replace(oldPath, FILE_NAME, ".sigrun/"+fmt.Sprint(currentChainNo)+".json", -1)
-		currConf, err := Get(currPath)
+		confMap, err := ReadRepos(currPath)
 		if err != nil {
 			return err
 		}
+		currConf = confMap[currPath]
 		err = VerifySignature(prevPubK, currConf)
 		if err != nil {
 			return err
 		}
 		prevPubK = currConf.PublicKey
 		currentChainNo = currConf.ChainNo + 1
+	}
+
+	isSame, err := IsSame(currConf, newConf)
+	if err != nil {
+		return err
+	}
+
+	if !isSame {
+		return fmt.Errorf("chain head is not the same as config file")
 	}
 
 	return nil
