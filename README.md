@@ -28,19 +28,22 @@ Local, CI/CD pipelines, K8s Clusters, VMs.
 #
 #### Features:
 - Using Sigstore tools in your Infra for Air-Gap offline usage via your CI/CD Pipeline
-- Sign your artifacts
-- Private & Public key-pair
-- Keyless
-- Save your artifacts signatures to certain storage
-- Save your container image signatures to certain storage
+- Sign your artifacts, container images, files, packages, etc. automatically along with their sha256 digest creation & saving into ledger
+- Private & Public key-pair generator (Cosign, GPG, and more in future) for signing 
+- Keyless signing 
+- Save your artifacts signatures to certain ledger storage
+- Save your container image signatures to certain ledger storage
 - Validate Signatures using Storage location of Signatures
 - Control deployments to allow only known Signatures using our Custom Admission Controller or OPA/Kyverno/Gatekeeper
-- Vault Integration to save Keys
+- Vault Integration to save Keys if you prefer to save private key(s) 
 - CI/CD Tools integration
 - Integration with tools like Buildpacks, Buildah, Source2Image, Kaniko, Skaffold, Docker Build, Podman, etc. 
-- OIDC
+- OIDC/Dex embeded for Login 
 - Vulnerability Scanning of your container images
-- Integrate with Non-Profit SigStore public service
+- Integrate with Non-Profit SigStore public services/tools
+- Integrate with Syft for Software Bill of Materials (SBOM) [github.com/anchore/syft]
+- Integrate with Package Hunter by Gitlab [gitlab.com/gitlab-org/security-products/package-hunter]
+- 
 
 
 #
