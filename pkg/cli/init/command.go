@@ -18,8 +18,8 @@ func Command() *cobra.Command {
 		Short: "Provides an interactive interface to create a sigrun repository",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			fmt.Println("Please enter the name of this sigrun repo")
-			var moniker string
-			_, err := fmt.Scanf("%s", &moniker)
+			var name string
+			_, err := fmt.Scanf("%s", &name)
 			if err != nil {
 				return err
 			}
@@ -40,7 +40,7 @@ func Command() *cobra.Command {
 			}
 
 			return config.Create(&config.Config{
-				Name:       moniker,
+				Name:       name,
 				PublicKey:  string(keys.PublicBytes),
 				PrivateKey: string(keys.PrivateBytes),
 				Images:     images,

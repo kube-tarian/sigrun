@@ -53,13 +53,13 @@ func Command() *cobra.Command {
 				conf := confMap[md.Path]
 
 				if conf.ChainNo > md.ChainNo {
-					fmt.Println("verifying sigrun repo with guid " + guid + " and moniker " + md.Moniker + " from chain no " + fmt.Sprint(md.ChainNo) + " to " + fmt.Sprint(conf.ChainNo))
+					fmt.Println("verifying sigrun repo with guid " + guid + " and name " + md.Name + " from chain no " + fmt.Sprint(md.ChainNo) + " to " + fmt.Sprint(conf.ChainNo))
 					err = config.VerifyChain(md.PublicKey, md.Path, md.ChainNo, conf)
 					if err != nil {
 						return err
 					}
 
-					fmt.Println("updating sigrun repo with guid " + guid + " and moniker " + md.Moniker + " from chain no " + fmt.Sprint(md.ChainNo) + " to " + fmt.Sprint(conf.ChainNo))
+					fmt.Println("updating sigrun repo with guid " + guid + " and name " + md.Name + " from chain no " + fmt.Sprint(md.ChainNo) + " to " + fmt.Sprint(conf.ChainNo))
 					cpol, err = policy.RemoveRepo(cpol, guid)
 					if err != nil {
 						return err
@@ -70,7 +70,7 @@ func Command() *cobra.Command {
 						return err
 					}
 				} else {
-					fmt.Println("sigrun repo with guid " + guid + " and moniker " + md.Moniker + " is already upto date")
+					fmt.Println("sigrun repo with guid " + guid + " and name " + md.Name + " is already upto date")
 				}
 			}
 
