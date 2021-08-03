@@ -25,4 +25,4 @@ jobs:
             ${{ runner.os }}-go-
       - name: Try to install
         run: |
-          go install cmd/sigrun/kubectl-sigrun.go
+          go install cmd/sigrun/sigrun.go
