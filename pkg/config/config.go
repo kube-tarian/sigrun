@@ -20,7 +20,7 @@ import (
 )
 
 type Config struct {
-	Moniker    string
+	Name       string
 	ChainNo    int64
 	PublicKey  string
 	PrivateKey string

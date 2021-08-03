@@ -40,7 +40,7 @@ func Command() *cobra.Command {
 			}
 
 			return config.Create(&config.Config{
-				Moniker:    moniker,
+				Name:       moniker,
 				PublicKey:  string(keys.PublicBytes),
 				PrivateKey: string(keys.PrivateBytes),
 				Images:     images,

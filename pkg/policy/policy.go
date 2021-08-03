@@ -100,15 +100,15 @@ func AddRepo(cpol *kyvernoV1.ClusterPolicy, guid, path string, conf *config.Conf
 	}
 
 	if guidToRepoMeta[guid] != nil {
-		return nil, fmt.Errorf("sigrun repo with guid " + guid + " and moniker " + conf.Moniker + " has already been added")
+		return nil, fmt.Errorf("sigrun repo with guid " + guid + " and moniker " + conf.Name + " has already been added")
 	}
 
 	if g := pubKToGUID[conf.PublicKey]; g != "" {
-		return nil, fmt.Errorf("sigrun repo with guid " + guid + " and moniker " + conf.Moniker + " has the same public key as a sigrun repo that has already been added with guid " + g)
+		return nil, fmt.Errorf("sigrun repo with guid " + guid + " and moniker " + conf.Name + " has the same public key as a sigrun repo that has already been added with guid " + g)
 	}
 
 	guidToRepoMeta[guid] = &RepoMetaData{
-		Moniker:   conf.Moniker,
+		Moniker:   conf.Name,
 		ChainNo:   conf.ChainNo,
 		Path:      path,
 		PublicKey: conf.PublicKey,
