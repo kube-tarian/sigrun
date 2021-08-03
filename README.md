@@ -12,12 +12,12 @@ Before installing the application the following dependencies need to be installe
 2. Golang version greater than 1.16
 
 ```
-go install cmd/sigrun/kubectl-sigrun.go
+go install cmd/sigrun/sigrun.go
 ```
 
 ### Usage
 ```
-kubectl sigrun --help
+sigrun --help
 ```
 
 ##### Purpose:
