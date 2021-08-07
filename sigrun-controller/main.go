@@ -1,15 +1,18 @@
 package main
 
 import (
-	"context"
-	"crypto/tls"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"k8s.io/api/admission/v1beta1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 const (
@@ -27,27 +30,28 @@ func main() {
 
 	flag.Parse()
 
-	certs, err := tls.LoadX509KeyPair(tlscert, tlskey)
-	if err != nil {
-		log.Printf("Filed to load key pair: %v", err)
-	}
-
-	server := &http.Server{
-		Addr:      fmt.Sprintf(":%v", port),
-		TLSConfig: &tls.Config{Certificates: []tls.Certificate{certs}},
-	}
-
 	// define http server and server handler
 	mux := http.NewServeMux()
 	mux.HandleFunc("/validate", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(400)
-		w.Write([]byte(`test`))
+		log.Println("received request")
+		arResponse := v1beta1.AdmissionReview{
+			Response: &v1beta1.AdmissionResponse{
+				Allowed: false,
+				Result: &metav1.Status{
+					Message: "Keep calm and not add more crap in the cluster!",
+				},
+			},
+		}
+		json.NewEncoder(w).Encode(arResponse)
 	})
-	server.Handler = mux
+
+	crt, _ := ioutil.ReadFile(tlscert)
+	key, _ := ioutil.ReadFile(tlskey)
+	log.Printf("\n\ncerts\n\n%v\n\n%v", string(crt), string(key))
 
 	// start webhook server in new rountine
 	go func() {
-		if err := server.ListenAndServeTLS("", ""); err != nil {
+		if err := http.ListenAndServeTLS(fmt.Sprintf(":%v", port), tlscert, tlskey, mux); err != nil {
 			log.Printf("Failed to listen and serve webhook server: %v", err)
 		}
 	}()
@@ -60,5 +64,4 @@ func main() {
 	<-signalChan
 
 	log.Print("Got shutdown signal, shutting down webhook server gracefully...")
-	server.Shutdown(context.Background())
 }
