@@ -16,9 +16,12 @@ metadata:
     name: sigrun
 spec:
   ports:
-    - name: sigrun
+    - name: sigrun-webhook
       port: 443
       targetPort: 8080
+    - name: sigrun-controller
+      port: 8000
+      targetPort: 8000
   selector:
     name: sigrun
 ---
@@ -72,3 +75,20 @@ webhooks:
         apiGroups: [""]
         apiVersions: ["v1"]
         resources: ["pods"]
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sigrun-ingress
+spec:
+  rules:
+    - http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: sigrun
+                port:
+                  number: 8000
+---

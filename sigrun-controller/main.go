@@ -4,36 +4,25 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
 
 	"k8s.io/api/admission/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-const (
-	port = "8080"
-)
-
-var (
-	tlscert, tlskey string
-)
+const PORT = "8080"
+const CONTROLLER_PORT = "8000"
 
 func main() {
-
+	var tlscert, tlskey string
 	flag.StringVar(&tlscert, "tlsCertFile", "/etc/certs/tls.crt", "File containing the x509 Certificate for HTTPS.")
 	flag.StringVar(&tlskey, "tlsKeyFile", "/etc/certs/tls.key", "File containing the x509 private key to --tlsCertFile.")
-
 	flag.Parse()
 
 	// define http server and server handler
 	mux := http.NewServeMux()
 	mux.HandleFunc("/validate", func(w http.ResponseWriter, r *http.Request) {
-		log.Println("received request")
 		arResponse := v1beta1.AdmissionReview{
 			Response: &v1beta1.AdmissionResponse{
 				Allowed: false,
@@ -45,23 +34,19 @@ func main() {
 		json.NewEncoder(w).Encode(arResponse)
 	})
 
-	crt, _ := ioutil.ReadFile(tlscert)
-	key, _ := ioutil.ReadFile(tlskey)
-	log.Printf("\n\ncerts\n\n%v\n\n%v", string(crt), string(key))
-
-	// start webhook server in new rountine
 	go func() {
-		if err := http.ListenAndServeTLS(fmt.Sprintf(":%v", port), tlscert, tlskey, mux); err != nil {
-			log.Printf("Failed to listen and serve webhook server: %v", err)
+		err := http.ListenAndServe(fmt.Sprintf(":%v", CONTROLLER_PORT), http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(200)
+			w.Write([]byte("Hello!"))
+		}))
+		if err != nil {
+			log.Fatal(err)
 		}
 	}()
 
-	log.Printf("Server running listening in port: %s", port)
+	log.Printf("Server running listening in port: %s", PORT)
+	if err := http.ListenAndServeTLS(fmt.Sprintf(":%v", PORT), tlscert, tlskey, mux); err != nil {
+		log.Printf("Failed to listen and serve webhook server: %v", err)
+	}
 
-	// listening shutdown singal
-	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
-	<-signalChan
-
-	log.Print("Got shutdown signal, shutting down webhook server gracefully...")
 }
