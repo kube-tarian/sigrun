@@ -32,19 +32,33 @@ func Command() *cobra.Command {
 			}
 			images := strings.Split(imagePathsLine, ",")
 
-			keys, err := cosign.GenerateKeyPair(func(b bool) ([]byte, error) {
-				return cosignCLI.GetPass(b)
-			})
+			fmt.Println("Please enter the mode of operation\nModes of operation - 'keyless','default'")
+			var mode string
+			_, err = fmt.Scanf("%s", &mode)
 			if err != nil {
 				return err
 			}
 
-			return config.Create(&config.Config{
-				Name:       name,
-				PublicKey:  string(keys.PublicBytes),
-				PrivateKey: string(keys.PrivateBytes),
-				Images:     images,
-			})
+			if mode != "keyless" {
+				keys, err := cosign.GenerateKeyPair(func(b bool) ([]byte, error) {
+					return cosignCLI.GetPass(b)
+				})
+				if err != nil {
+					return err
+				}
+
+				return config.NewDefaultConfig(name, string(keys.PublicBytes), string(keys.PrivateBytes), images).InitializeRepository()
+			} else {
+				fmt.Println("Please enter the email id's of the maintainers")
+				var emailsLine string
+				_, err = fmt.Scanf("%s", &emailsLine)
+				if err != nil {
+					return err
+				}
+				emails := strings.Split(emailsLine, ",")
+
+				return config.NewKeylessConfig(name, emails, images).InitializeRepository()
+			}
 		},
 	}
 
