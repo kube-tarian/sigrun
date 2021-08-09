@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+	"crypto"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -9,6 +10,8 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+
+	"github.com/sigstore/sigstore/pkg/signature"
 
 	"github.com/pkg/errors"
 	cosignCLI "github.com/sigstore/cosign/cmd/cosign/cli"
@@ -24,6 +27,44 @@ type DefaultConfig struct {
 	PrivateKey string
 	Images     []string
 	Signature  string
+}
+
+func (conf *DefaultConfig) GetSignature() string {
+	return conf.Signature
+}
+
+func (conf *DefaultConfig) VerifySuccessorConfig(config Config) error {
+	data, err := config.SignDoc()
+	if err != nil {
+		return err
+	}
+
+	pubK, err := cosign.PemToECDSAKey([]byte(conf.PublicKey))
+	if err != nil {
+		return err
+	}
+	verifier := signature.ECDSAVerifier{
+		Key:     pubK,
+		HashAlg: crypto.SHA256,
+	}
+
+	sigRaw, err := base64.StdEncoding.DecodeString(config.GetSignature())
+	if err != nil {
+		return err
+	}
+
+	return verifier.Verify(context.Background(), data, sigRaw)
+}
+
+func (conf *DefaultConfig) GetVerificationInfo() *VerificationInfo {
+	return &VerificationInfo{
+		Name:        conf.Name,
+		Mode:        conf.Mode,
+		ChainNo:     conf.ChainNo,
+		PublicKey:   conf.PublicKey,
+		Maintainers: nil,
+		Images:      conf.Images,
+	}
 }
 
 func (conf *DefaultConfig) GetChainNo() int64 {
@@ -132,7 +173,7 @@ func (conf *DefaultConfig) InitializeRepository() error {
 	return set(".sigrun/0.json", conf)
 }
 
-func (c *DefaultConfig) Validate() error {
+func (conf *DefaultConfig) Validate() error {
 
 	return nil
 }

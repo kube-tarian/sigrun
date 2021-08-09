@@ -1,19 +1,14 @@
 package list
 
 import (
-	"context"
-	"encoding/base64"
+	"encoding/json"
 	"fmt"
 
-	"github.com/devopstoday11/sigrun/pkg/policy"
+	"github.com/devopstoday11/sigrun/pkg/controller"
+
 	"github.com/tidwall/pretty"
 
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
 	"github.com/spf13/cobra"
-
-	kyvernoclient "github.com/kyverno/kyverno/pkg/client/clientset/versioned"
-	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 
 func Command() *cobra.Command {
@@ -22,27 +17,22 @@ func Command() *cobra.Command {
 		Short: "Lists metadata about sigrun repos that have been added",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 
-			kRestConf, err := genericclioptions.NewConfigFlags(true).ToRESTConfig()
+			cont, err := controller.GetController()
 			if err != nil {
 				return err
 			}
 
-			kClient, err := kyvernoclient.NewForConfig(kRestConf)
+			repoInfo, err := cont.List()
 			if err != nil {
 				return err
 			}
 
-			ctx := context.Background()
-			cpol, err := kClient.KyvernoV1().ClusterPolicies().Get(ctx, policy.NAME, v1.GetOptions{})
-			if err != nil {
-				return err
-			}
-			sigrunRepos, err := base64.StdEncoding.DecodeString(cpol.Annotations["sigrun-repos-metadata"])
+			encodedRepoInfo, err := json.Marshal(repoInfo)
 			if err != nil {
 				return err
 			}
 
-			fmt.Println("Sigrun-repos:\n" + string(pretty.Pretty(sigrunRepos)))
+			fmt.Println("Sigrun-repos:\n" + string(pretty.Pretty(encodedRepoInfo)))
 			return nil
 		},
 	}

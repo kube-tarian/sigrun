@@ -11,7 +11,6 @@ require (
 	github.com/tidwall/pretty v1.2.0
 	k8s.io/apimachinery v0.21.1
 	k8s.io/cli-runtime v0.21.1
-	k8s.io/client-go v0.21.1
 )
 
 replace github.com/gorilla/rpc v1.2.0+incompatible => github.com/gorilla/rpc v1.2.0

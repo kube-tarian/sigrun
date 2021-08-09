@@ -9,6 +9,18 @@ type KeylessConfig struct {
 	Signature   string
 }
 
+func (conf *KeylessConfig) GetVerificationInfo() *VerificationInfo {
+	panic("implement me")
+}
+
+func (conf *KeylessConfig) VerifySuccessorConfig(config Config) error {
+	panic("implement me")
+}
+
+func (conf *KeylessConfig) GetSignature() string {
+	panic("implement me")
+}
+
 func (conf *KeylessConfig) InitializeRepository() error {
 	panic("implement me")
 }

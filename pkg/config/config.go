@@ -1,18 +1,12 @@
 package config
 
 import (
-	"context"
-	"crypto"
-	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
 
 	"github.com/devopstoday11/sigrun/pkg/util"
-	"github.com/sigstore/cosign/pkg/cosign"
-	"github.com/sigstore/sigstore/pkg/signature"
 )
 
 const (
@@ -51,6 +45,18 @@ type Config interface {
 	Sign([]byte) (string, error)
 	SignDoc() ([]byte, error)
 	Validate() error
+	GetVerificationInfo() *VerificationInfo
+	VerifySuccessorConfig(Config) error
+	GetSignature() string
+}
+
+type VerificationInfo struct {
+	Name        string
+	Mode        string
+	ChainNo     int64
+	PublicKey   string
+	Maintainers []string
+	Images      []string
 }
 
 func ReadRepositoryConfig() (Config, error) {
@@ -60,31 +66,6 @@ func ReadRepositoryConfig() (Config, error) {
 	}
 
 	return parseConfig(encodedConfig)
-}
-
-func VerifySignature(pubKRaw string, conf *DefaultConfig) error {
-	sig := conf.Signature
-	conf.Signature = ""
-	data, err := json.Marshal(conf)
-	if err != nil {
-		return err
-	}
-	conf.Signature = sig
-	pubK, err := cosign.PemToECDSAKey([]byte(pubKRaw))
-	if err != nil {
-		return err
-	}
-	verifier := signature.ECDSAVerifier{
-		Key:     pubK,
-		HashAlg: crypto.SHA256,
-	}
-
-	sigRaw, err := base64.StdEncoding.DecodeString(sig)
-	if err != nil {
-		return err
-	}
-
-	return verifier.Verify(context.Background(), data, sigRaw)
 }
 
 func GetGUID(path string) (string, error) {
@@ -121,25 +102,49 @@ func ReadRepos(repoUrls ...string) (map[string]Config, error) {
 	return pathToConfig, nil
 }
 
-func VerifyChain(oldPubK, oldPath string, oldChainNo int64, newConf *DefaultConfig) error {
-	currentChainNo := oldChainNo + 1
-	prevPubK := oldPubK
+func GetVerificationConfigFromVerificationInfo(info *VerificationInfo) Config {
+	if info.Mode == CONFIG_MODE_KEYLESS {
+		return &KeylessConfig{
+			Name:        info.Name,
+			Mode:        info.Mode,
+			ChainNo:     info.ChainNo,
+			Maintainers: info.Maintainers,
+			Images:      info.Images,
+			Signature:   "",
+		}
+	} else {
+		return &DefaultConfig{
+			Name:       info.Name,
+			Mode:       info.Mode,
+			ChainNo:    info.ChainNo,
+			PublicKey:  info.PublicKey,
+			PrivateKey: "",
+			Images:     info.Images,
+			Signature:  "",
+		}
+	}
+}
 
-	var currConf *DefaultConfig
+func VerifyChain(repoPath string, oldConf, newConf Config) error {
 	var err error
-	for currentChainNo <= newConf.ChainNo {
-		currPath := strings.Replace(oldPath, FILE_NAME, ".sigrun/"+fmt.Sprint(currentChainNo)+".json", -1)
+
+	currentChainNo := oldConf.GetChainNo() + 1
+	prevConf := oldConf
+	var currConf Config
+	for currentChainNo <= newConf.GetChainNo() {
+		currPath := strings.Replace(repoPath, FILE_NAME, ".sigrun/"+fmt.Sprint(currentChainNo)+".json", -1)
 		confMap, err := ReadRepos(currPath)
 		if err != nil {
 			return err
 		}
 		currConf = confMap[currPath]
-		err = VerifySignature(prevPubK, currConf)
+
+		err = prevConf.VerifySuccessorConfig(currConf)
 		if err != nil {
 			return err
 		}
-		prevPubK = currConf.PublicKey
-		currentChainNo = currConf.ChainNo + 1
+		prevConf = currConf
+		currentChainNo = currConf.GetChainNo() + 1
 	}
 
 	isSame, err := isSame(currConf, newConf)
