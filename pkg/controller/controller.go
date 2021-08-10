@@ -1,5 +1,10 @@
 package controller
 
+const (
+	CONTROLLER_TYPE_KYVERNO = "kyverno"
+	CONTROLLER_TYPE_SIGRUN  = "sigrun"
+)
+
 func NewKyvernoController() *kyvernoController {
 	return &kyvernoController{}
 }
@@ -26,6 +31,37 @@ type RepoInfo struct {
 	Maintainers []string
 }
 
-func GetController() (Controller, error) {
-	return nil, nil
+func GetController(contType string) (Controller, error) {
+	switch contType {
+	case CONTROLLER_TYPE_KYVERNO:
+		return NewKyvernoController(), nil
+	default:
+		return NewSigrunController(), nil
+	}
 }
+
+//
+//func detectControllerType() (string, error) {
+//	kRestConf, err := genericclioptions.NewConfigFlags(true).ToRESTConfig()
+//	if err != nil {
+//		return "", err
+//	}
+//	kClient, err := kyvernoclient.NewForConfig(kRestConf)
+//	if err != nil {
+//		return "", err
+//	}
+//
+//	ctx := context.Background()
+//	cpol, err := kClient.KyvernoV1().ClusterPolicies().Get(ctx, KYVERNO_POLICY_NAME, v1.GetOptions{})
+//	if err != nil {
+//		if !strings.Contains(err.Error(), "not find") {
+//			return "", err
+//		}
+//	} else {
+//		if cpol.Name == KYVERNO_POLICY_NAME {
+//			return CONTROLLER_TYPE_KYVERNO, nil
+//		}
+//	}
+//
+//	return "", nil
+//}
