@@ -9,8 +9,10 @@ require (
 	github.com/sigstore/sigstore v0.0.0-20210530211317-99216b8b86a6
 	github.com/spf13/cobra v1.2.1
 	github.com/tidwall/pretty v1.2.0
+	k8s.io/api v0.21.1
 	k8s.io/apimachinery v0.21.1
 	k8s.io/cli-runtime v0.21.1
+	k8s.io/client-go v0.21.1
 )
 
 replace github.com/gorilla/rpc v1.2.0+incompatible => github.com/gorilla/rpc v1.2.0

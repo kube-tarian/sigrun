@@ -10,7 +10,14 @@ type KeylessConfig struct {
 }
 
 func (conf *KeylessConfig) GetVerificationInfo() *VerificationInfo {
-	panic("implement me")
+	return &VerificationInfo{
+		Name:        conf.Name,
+		Mode:        conf.Mode,
+		ChainNo:     conf.ChainNo,
+		PublicKey:   "",
+		Maintainers: conf.Maintainers,
+		Images:      conf.Images,
+	}
 }
 
 func (conf *KeylessConfig) VerifySuccessorConfig(config Config) error {
@@ -18,7 +25,7 @@ func (conf *KeylessConfig) VerifySuccessorConfig(config Config) error {
 }
 
 func (conf *KeylessConfig) GetSignature() string {
-	panic("implement me")
+	return conf.Signature
 }
 
 func (conf *KeylessConfig) InitializeRepository() error {
@@ -34,7 +41,7 @@ func (conf *KeylessConfig) CommitRepositoryUpdate() error {
 }
 
 func (conf *KeylessConfig) GetChainNo() int64 {
-	panic("implement me")
+	return conf.ChainNo
 }
 
 func (conf *KeylessConfig) Sign(bytes []byte) (string, error) {
