@@ -76,19 +76,10 @@ webhooks:
         apiVersions: ["v1"]
         resources: ["pods"]
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: v1
+kind: ConfigMap
 metadata:
-  name: sigrun-ingress
-spec:
-  rules:
-    - http:
-        paths:
-          - pathType: Prefix
-            path: "/"
-            backend:
-              service:
-                name: sigrun
-                port:
-                  number: 8000
----
+  name: sigrun-controller-config
+data:
+  guid_to_repo_info: ""
+  image_to_guids: ""

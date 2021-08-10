@@ -21,7 +21,7 @@ type kyvernoController struct {
 }
 
 func (k *kyvernoController) Type() string {
-	return "kyverno"
+	return CONTROLLER_TYPE_KYVERNO
 }
 
 func (k *kyvernoController) Add(repoPaths ...string) error {
@@ -56,7 +56,11 @@ func (k *kyvernoController) Add(repoPaths ...string) error {
 	}
 
 	for path, conf := range pathToConfig {
-		cpol, err = addRepo(cpol, pathToGUID[path], path, conf)
+		if conf.GetVerificationInfo().Mode == config.CONFIG_MODE_KEYLESS {
+			return fmt.Errorf("kyverno controller does not support keyless config yet")
+		}
+
+		cpol, err = k.addRepo(cpol, pathToGUID[path], path, conf)
 		if err != nil {
 			return err
 		}
@@ -118,12 +122,12 @@ func (k *kyvernoController) Update() error {
 			}
 
 			fmt.Println("updating sigrun repo with guid " + guid + " and name " + md.Name + " from chain no " + fmt.Sprint(md.ChainNo) + " to " + fmt.Sprint(newConfInfo.ChainNo))
-			cpol, err = removeRepo(cpol, guid)
+			cpol, err = k.removeRepo(cpol, guid)
 			if err != nil {
 				return err
 			}
 
-			cpol, err = addRepo(cpol, guid, md.Path, newConf)
+			cpol, err = k.addRepo(cpol, guid, md.Path, newConf)
 			if err != nil {
 				return err
 			}
@@ -163,7 +167,7 @@ func (k *kyvernoController) Remove(repoPaths ...string) error {
 			return err
 		}
 
-		cpol, err = removeRepo(cpol, guid)
+		cpol, err = k.removeRepo(cpol, guid)
 		if err != nil {
 			return err
 		}
@@ -273,7 +277,7 @@ func newKyvernoPolicy() *kyvernoV1.ClusterPolicy {
 	}
 }
 
-func removeRepo(cpol *kyvernoV1.ClusterPolicy, guid string) (*kyvernoV1.ClusterPolicy, error) {
+func (k *kyvernoController) removeRepo(cpol *kyvernoV1.ClusterPolicy, guid string) (*kyvernoV1.ClusterPolicy, error) {
 	sigrunReposJSON, err := base64.StdEncoding.DecodeString(cpol.Annotations["sigrun-repos-metadata"])
 	if err != nil {
 		return nil, err
@@ -304,7 +308,7 @@ func removeRepo(cpol *kyvernoV1.ClusterPolicy, guid string) (*kyvernoV1.ClusterP
 	return cpol, nil
 }
 
-func addRepo(cpol *kyvernoV1.ClusterPolicy, guid, path string, c config.Config) (*kyvernoV1.ClusterPolicy, error) {
+func (k *kyvernoController) addRepo(cpol *kyvernoV1.ClusterPolicy, guid, path string, c config.Config) (*kyvernoV1.ClusterPolicy, error) {
 	conf := c.GetVerificationInfo()
 
 	// add repos to sigrun-repos annotation
