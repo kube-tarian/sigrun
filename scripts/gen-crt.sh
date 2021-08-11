@@ -60,3 +60,5 @@ cat ./wh.crt | base64 | tr -d '\n'
 printf "\n\nwh key\n\n"
 cat ./wh.key | base64 | tr -d '\n'
 printf "\n\n"
+
+cd .. && rm -R tmp

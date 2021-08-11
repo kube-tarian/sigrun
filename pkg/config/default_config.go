@@ -1,6 +1,7 @@
 package config
 
 import (
+	"bytes"
 	"context"
 	"crypto"
 	"encoding/base64"
@@ -10,6 +11,10 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+
+	"github.com/google/go-containerregistry/pkg/authn"
+	"github.com/google/go-containerregistry/pkg/name"
+	"github.com/google/go-containerregistry/pkg/v1/remote"
 
 	"github.com/sigstore/sigstore/pkg/signature"
 
@@ -43,9 +48,9 @@ func (conf *DefaultConfig) VerifySuccessorConfig(config Config) error {
 	if err != nil {
 		return err
 	}
-	verifier := signature.ECDSAVerifier{
-		Key:     pubK,
-		HashAlg: crypto.SHA256,
+	verifier, err := signature.LoadECDSAVerifier(pubK, crypto.SHA256)
+	if err != nil {
+		return err
 	}
 
 	sigRaw, err := base64.StdEncoding.DecodeString(config.GetSignature())
@@ -53,7 +58,7 @@ func (conf *DefaultConfig) VerifySuccessorConfig(config Config) error {
 		return err
 	}
 
-	return verifier.Verify(context.Background(), data, sigRaw)
+	return verifier.VerifySignature(bytes.NewReader(sigRaw), bytes.NewReader(data))
 }
 
 func (conf *DefaultConfig) GetVerificationInfo() *VerificationInfo {
@@ -77,12 +82,12 @@ func (conf *DefaultConfig) Sign(data []byte) (string, error) {
 		return "", err
 	}
 
-	signer, err := cosign.LoadECDSAPrivateKey([]byte(conf.PrivateKey), []byte(password))
+	signer, err := cosignCLI.LoadECDSAPrivateKey([]byte(conf.PrivateKey), []byte(password))
 	if err != nil {
 		return "", err
 	}
 
-	sig, _, err := signer.Sign(context.Background(), data)
+	sig, err := signer.SignMessage(bytes.NewReader(data))
 	if err != nil {
 		return "", err
 	}
@@ -143,13 +148,13 @@ func (conf *DefaultConfig) SignImages() error {
 		return err
 	}
 
-	so := cosignCLI.SignOpts{
-		KeyRef: tempPrivKeyFile.Name(),
-		Pf:     cosignCLI.GetPass,
+	so := cosignCLI.KeyOpts{
+		KeyRef:   tempPrivKeyFile.Name(),
+		PassFunc: cosignCLI.GetPass,
 	}
 	ctx := context.Background()
 	for _, img := range conf.Images {
-		if err := cosignCLI.SignCmd(ctx, so, img, true, "", false, false); err != nil {
+		if err := cosignCLI.SignCmd(ctx, so, nil, img, "", true, "", false, false); err != nil {
 			return errors.Wrapf(err, "signing %s", img)
 		}
 	}
@@ -176,4 +181,48 @@ func (conf *DefaultConfig) InitializeRepository() error {
 func (conf *DefaultConfig) Validate() error {
 
 	return nil
+}
+
+func (conf *DefaultConfig) VerifyImage(image string) error {
+	key := []byte(conf.PublicKey)
+	pubKey, err := decodePEM(key)
+	if err != nil {
+		return errors.Wrapf(err, "failed to decode PEM %v", string(key))
+	}
+
+	cosignOpts := &cosign.CheckOpts{
+		Annotations: map[string]interface{}{},
+		SigVerifier: pubKey,
+		RegistryClientOpts: []remote.Option{
+			remote.WithAuthFromKeychain(authn.DefaultKeychain),
+		},
+	}
+
+	ref, err := name.ParseReference(image)
+	if err != nil {
+		return errors.Wrap(err, "failed to parse image")
+	}
+
+	_, err = cosign.Verify(context.Background(), ref, cosignOpts)
+	if err != nil {
+		msg := err.Error()
+		if strings.Contains(msg, "NAME_UNKNOWN: repository name not known to registry") {
+			return fmt.Errorf("signature not found")
+		} else if strings.Contains(msg, "no matching signatures") {
+			return fmt.Errorf("invalid signature")
+		}
+		return errors.Wrap(err, "failed to verify image")
+	}
+
+	return nil
+}
+
+func decodePEM(raw []byte) (signature.Verifier, error) {
+	// PEM encoded file.
+	ed, err := cosign.PemToECDSAKey(raw)
+	if err != nil {
+		return nil, errors.Wrap(err, "pem to ecdsa")
+	}
+
+	return signature.LoadECDSAVerifier(ed, crypto.SHA256)
 }

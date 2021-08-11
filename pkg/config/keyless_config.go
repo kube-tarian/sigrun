@@ -9,6 +9,10 @@ type KeylessConfig struct {
 	Signature   string
 }
 
+func (conf *KeylessConfig) VerifyImage(image string) error {
+	return nil
+}
+
 func (conf *KeylessConfig) GetVerificationInfo() *VerificationInfo {
 	return &VerificationInfo{
 		Name:        conf.Name,

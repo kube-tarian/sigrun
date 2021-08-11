@@ -48,6 +48,7 @@ type Config interface {
 	GetVerificationInfo() *VerificationInfo
 	VerifySuccessorConfig(Config) error
 	GetSignature() string
+	VerifyImage(image string) error
 }
 
 type VerificationInfo struct {

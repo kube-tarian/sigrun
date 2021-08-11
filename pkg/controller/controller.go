@@ -1,5 +1,15 @@
 package controller
 
+import (
+	"encoding/base64"
+	"encoding/json"
+	"strings"
+
+	"github.com/devopstoday11/sigrun/pkg/config"
+
+	v1 "k8s.io/api/core/v1"
+)
+
 const (
 	CONTROLLER_TYPE_KYVERNO = "kyverno"
 	CONTROLLER_TYPE_SIGRUN  = "sigrun"
@@ -23,12 +33,8 @@ type Controller interface {
 }
 
 type RepoInfo struct {
-	Name        string
-	Mode        string
-	ChainNo     int64
-	Path        string
-	PublicKey   string
-	Maintainers []string
+	config.VerificationInfo
+	Path string
 }
 
 func GetController(contType string) (Controller, error) {
@@ -65,3 +71,21 @@ func GetController(contType string) (Controller, error) {
 //
 //	return "", nil
 //}
+
+func ParseSigrunConfigMap(configMap *v1.ConfigMap) (map[string]*RepoInfo, map[string][]string, error) {
+	sigrunReposJSON, err := base64.StdEncoding.DecodeString(configMap.Data["guid_to_repo_info"])
+	if err != nil {
+		return nil, nil, err
+	}
+	guidToRepoMeta := make(map[string]*RepoInfo)
+	_ = json.NewDecoder(strings.NewReader(string(sigrunReposJSON))).Decode(&guidToRepoMeta)
+
+	imageToGuidsRaw, err := base64.StdEncoding.DecodeString(configMap.Data["image_to_guids"])
+	if err != nil {
+		return nil, nil, err
+	}
+	imageToGuids := make(map[string][]string)
+	_ = json.NewDecoder(strings.NewReader(string(imageToGuidsRaw))).Decode(&imageToGuids)
+
+	return guidToRepoMeta, imageToGuids, nil
+}

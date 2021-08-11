@@ -195,14 +195,7 @@ func (s *sigrunController) Update() error {
 		newConfInfo := newConf.GetVerificationInfo()
 
 		if newConfInfo.ChainNo > md.ChainNo {
-			oldConf := config.GetVerificationConfigFromVerificationInfo(&config.VerificationInfo{
-				Name:        md.Name,
-				Mode:        md.Mode,
-				ChainNo:     md.ChainNo,
-				PublicKey:   md.PublicKey,
-				Maintainers: md.Maintainers,
-				Images:      nil,
-			})
+			oldConf := config.GetVerificationConfigFromVerificationInfo(&md.VerificationInfo)
 			fmt.Println("verifying sigrun repo with guid " + guid + " and name " + md.Name + " from chain no " + fmt.Sprint(md.ChainNo) + " to " + fmt.Sprint(newConfInfo.ChainNo))
 			err = config.VerifyChain(md.Path, oldConf, newConf)
 			if err != nil {
@@ -248,12 +241,8 @@ func (s *sigrunController) addRepo(configMap *kubernetesCoreV1.ConfigMap, guid, 
 	}
 
 	guidToRepoMeta[guid] = &RepoInfo{
-		Name:        conf.Name,
-		Mode:        conf.Mode,
-		ChainNo:     conf.ChainNo,
-		Path:        path,
-		PublicKey:   conf.PublicKey,
-		Maintainers: conf.Maintainers,
+		VerificationInfo: *conf,
+		Path:             path,
 	}
 
 	imageToGuidsRaw, err := base64.StdEncoding.DecodeString(configMap.Data["image_to_guids"])
