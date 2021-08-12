@@ -46,21 +46,17 @@ func (k *kyvernoController) Add(repoPaths ...string) error {
 		return err
 	}
 
-	pathToGUID := make(map[string]string)
-	for path := range pathToConfig {
-		guid, err := config.GetGUID(path)
-		if err != nil {
-			return err
-		}
-		pathToGUID[path] = guid
-	}
-
 	for path, conf := range pathToConfig {
 		if conf.GetVerificationInfo().Mode == config.CONFIG_MODE_KEYLESS {
 			return fmt.Errorf("kyverno controller does not support keyless config yet")
 		}
 
-		cpol, err = k.addRepo(cpol, pathToGUID[path], path, conf)
+		guid, err := config.GetGUID(path)
+		if err != nil {
+			return err
+		}
+
+		cpol, err = k.addRepo(cpol, guid, path, conf)
 		if err != nil {
 			return err
 		}

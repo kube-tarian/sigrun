@@ -17,10 +17,8 @@ func Command() *cobra.Command {
 		Short: "Lists metadata about sigrun repos that have been added",
 	}
 
-	var controllerF string
-	cmd.Flags().StringVar(&controllerF, "controller", "sigrun", "specify the controller you would like to use")
 	cmd.RunE = func(cmd *cobra.Command, args []string) (err error) {
-		cont, err := controller.GetController(controllerF)
+		cont, err := controller.GetController()
 		if err != nil {
 			return err
 		}

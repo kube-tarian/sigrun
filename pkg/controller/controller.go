@@ -1,13 +1,20 @@
 package controller
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"strings"
+
+	kyvernoclient "github.com/kyverno/kyverno/pkg/client/clientset/versioned"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/cli-runtime/pkg/genericclioptions"
+	"k8s.io/client-go/kubernetes"
 
 	"github.com/devopstoday11/sigrun/pkg/config"
 
-	v1 "k8s.io/api/core/v1"
+	corev1 "k8s.io/api/core/v1"
 )
 
 const (
@@ -37,42 +44,67 @@ type RepoInfo struct {
 	Path string
 }
 
-func GetController(contType string) (Controller, error) {
+func GetController() (Controller, error) {
+	contType, err := detectControllerType()
+	if err != nil {
+		return nil, err
+	}
+
+	return GetControllerOfType(contType), nil
+}
+
+func GetControllerOfType(contType string) Controller {
 	switch contType {
 	case CONTROLLER_TYPE_KYVERNO:
-		return NewKyvernoController(), nil
+		return NewKyvernoController()
 	default:
-		return NewSigrunController(), nil
+		return NewSigrunController()
 	}
 }
 
-//
-//func detectControllerType() (string, error) {
-//	kRestConf, err := genericclioptions.NewConfigFlags(true).ToRESTConfig()
-//	if err != nil {
-//		return "", err
-//	}
-//	kClient, err := kyvernoclient.NewForConfig(kRestConf)
-//	if err != nil {
-//		return "", err
-//	}
-//
-//	ctx := context.Background()
-//	cpol, err := kClient.KyvernoV1().ClusterPolicies().Get(ctx, KYVERNO_POLICY_NAME, v1.GetOptions{})
-//	if err != nil {
-//		if !strings.Contains(err.Error(), "not find") {
-//			return "", err
-//		}
-//	} else {
-//		if cpol.Name == KYVERNO_POLICY_NAME {
-//			return CONTROLLER_TYPE_KYVERNO, nil
-//		}
-//	}
-//
-//	return "", nil
-//}
+func detectControllerType() (string, error) {
+	kRestConf, err := genericclioptions.NewConfigFlags(true).ToRESTConfig()
+	if err != nil {
+		return "", err
+	}
 
-func ParseSigrunConfigMap(configMap *v1.ConfigMap) (map[string]*RepoInfo, map[string][]string, error) {
+	kclient, err := kubernetes.NewForConfig(kRestConf)
+	if err != nil {
+		return "", err
+	}
+
+	configMap, err := kclient.CoreV1().ConfigMaps(SIGRUN_CONTROLLER_NAMESPACE).Get(context.Background(), SIGRUN_CONTROLLER_CONFIG, v1.GetOptions{})
+	if err != nil {
+		if !strings.Contains(err.Error(), "not find") {
+			return "", err
+		}
+	} else {
+		if configMap.Name == SIGRUN_CONTROLLER_CONFIG {
+			return CONTROLLER_TYPE_SIGRUN, nil
+		}
+	}
+
+	kClient, err := kyvernoclient.NewForConfig(kRestConf)
+	if err != nil {
+		return "", err
+	}
+
+	ctx := context.Background()
+	cpol, err := kClient.KyvernoV1().ClusterPolicies().Get(ctx, KYVERNO_POLICY_NAME, v1.GetOptions{})
+	if err != nil {
+		if !strings.Contains(err.Error(), "not find") {
+			return "", err
+		}
+	} else {
+		if cpol.Name == KYVERNO_POLICY_NAME {
+			return CONTROLLER_TYPE_KYVERNO, nil
+		}
+	}
+
+	return "", fmt.Errorf("cluster needs to be initilized with sigrun")
+}
+
+func ParseSigrunConfigMap(configMap *corev1.ConfigMap) (map[string]*RepoInfo, map[string][]string, error) {
 	sigrunReposJSON, err := base64.StdEncoding.DecodeString(configMap.Data["guid_to_repo_info"])
 	if err != nil {
 		return nil, nil, err

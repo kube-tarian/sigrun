@@ -11,10 +11,8 @@ func Command() *cobra.Command {
 		Short: "Removes a sigrun repo from the policy agent. Updates the policy agent by removing all data related to sigrun repo.",
 	}
 
-	var controllerF string
-	cmd.Flags().StringVar(&controllerF, "controller", "sigrun", "specify the controller you would like to use")
 	cmd.RunE = func(cmd *cobra.Command, args []string) (err error) {
-		cont, err := controller.GetController(controllerF)
+		cont, err := controller.GetController()
 		if err != nil {
 			return nil
 		}

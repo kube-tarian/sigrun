@@ -13,15 +13,13 @@ func Command() *cobra.Command {
 		Use:   "add",
 		Short: "Adds a sigrun repo to the policy agent. The config file of the sigrun repo is parsed and the policy agent is update according to the config.",
 	}
-	var controllerF string
-	cmd.Flags().StringVar(&controllerF, "controller", "sigrun", "specify the controller you would like to use")
 	cmd.RunE = func(cmd *cobra.Command, args []string) (err error) {
 		err = validateAddInput(args...)
 		if err != nil {
 			return err
 		}
 
-		cont, err := controller.GetController(controllerF)
+		cont, err := controller.GetController()
 		if err != nil {
 			return err
 		}
