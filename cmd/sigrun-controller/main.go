@@ -14,8 +14,6 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/devopstoday11/sigrun/pkg/controller"
-	"github.com/docker/distribution/reference"
-	"github.com/pkg/errors"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
@@ -74,12 +72,12 @@ func main() {
 		var containers []corev1.Container
 		containers = append(pod.Spec.Containers, pod.Spec.InitContainers...)
 		for _, container := range containers {
-			imgInfo, err := newImageInfo(container.Image)
+			img, err := config.NormalizeImageName(container.Image)
 			if err != nil {
 				log.Println(err)
 				return
 			}
-			img := imgInfo.String()
+
 			digestStrippedImg := strings.Split(img, "@")[0]
 			for _, guid := range imageToGuids[digestStrippedImg] {
 				conf := config.GetVerificationConfigFromVerificationInfo(&guidToRepo[guid].VerificationInfo)
@@ -114,76 +112,4 @@ func main() {
 		log.Printf("Failed to listen and serve webhook server: %v", err)
 	}
 
-}
-
-func newImageInfo(image string) (*ImageInfo, error) {
-	image = addDefaultDomain(image)
-	ref, err := reference.Parse(image)
-	if err != nil {
-		return nil, errors.Wrapf(err, "bad image: %s", image)
-	}
-
-	var registry, path, name, tag, digest string
-	if named, ok := ref.(reference.Named); ok {
-		registry = reference.Domain(named)
-		path = reference.Path(named)
-		name = path[strings.LastIndex(path, "/")+1:]
-	}
-
-	if tagged, ok := ref.(reference.Tagged); ok {
-		tag = tagged.Tag()
-	}
-
-	if digested, ok := ref.(reference.Digested); ok {
-		digest = digested.Digest().String()
-	}
-
-	// set default tag - the domain is set via addDefaultDomain before parsing
-	if tag == "" {
-		tag = "latest"
-	}
-
-	return &ImageInfo{
-		Registry: registry,
-		Name:     name,
-		Path:     path,
-		Tag:      tag,
-		Digest:   digest,
-	}, nil
-}
-
-type ImageInfo struct {
-
-	// Registry is the URL address of the image registry e.g. `docker.io`
-	Registry string `json:"registry,omitempty"`
-
-	// Name is the image name portion e.g. `busybox`
-	Name string `json:"name"`
-
-	// Path is the repository path and image name e.g. `some-repository/busybox`
-	Path string `json:"path"`
-
-	// Tag is the image tag e.g. `v2`
-	Tag string `json:"tag,omitempty"`
-
-	// Digest is the image digest portion e.g. `sha256:128c6e3534b842a2eec139999b8ce8aa9a2af9907e2b9269550809d18cd832a3`
-	Digest string `json:"digest,omitempty"`
-}
-
-func (i *ImageInfo) String() string {
-	image := i.Registry + "/" + i.Path + ":" + i.Tag
-	if i.Digest != "" {
-		image = image + "@" + i.Digest
-	}
-
-	return image
-}
-
-func addDefaultDomain(name string) string {
-	i := strings.IndexRune(name, '/')
-	if i == -1 || (!strings.ContainsAny(name[:i], ".:") && name[:i] != "localhost" && strings.ToLower(name[:i]) == name[:i]) {
-		return "docker.io/" + name
-	}
-
-	return name
 }

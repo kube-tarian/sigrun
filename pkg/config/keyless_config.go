@@ -32,6 +32,11 @@ type Keyless struct {
 func (conf *Keyless) VerifyImage(image string) error {
 	ctx := context.Background()
 
+	image, err := NormalizeImageName(image)
+	if err != nil {
+		return err
+	}
+
 	ref, err := name.ParseReference(image)
 	if err != nil {
 		return errors.Wrap(err, "failed to parse image")

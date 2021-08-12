@@ -184,6 +184,11 @@ func (conf *KeyPair) Validate() error {
 }
 
 func (conf *KeyPair) VerifyImage(image string) error {
+	image, err := NormalizeImageName(image)
+	if err != nil {
+		return err
+	}
+
 	key := []byte(conf.PublicKey)
 	pubKey, err := decodePEM(key)
 	if err != nil {
