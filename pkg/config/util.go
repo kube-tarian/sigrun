@@ -50,7 +50,7 @@ func parseConfig(encodedConfig []byte) (Config, error) {
 
 	var conf Config
 	if mode == CONFIG_MODE_KEYLESS {
-		var keylessConfig KeylessConfig
+		var keylessConfig Keyless
 		err = json.Unmarshal(encodedConfig, &keylessConfig)
 		if err != nil {
 			return nil, err
@@ -58,7 +58,7 @@ func parseConfig(encodedConfig []byte) (Config, error) {
 
 		conf = &keylessConfig
 	} else {
-		var defaultConfig DefaultConfig
+		var defaultConfig KeyPair
 		err = json.Unmarshal(encodedConfig, &defaultConfig)
 		if err != nil {
 			return nil, err

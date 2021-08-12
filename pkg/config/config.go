@@ -10,14 +10,14 @@ import (
 )
 
 const (
-	CONFIG_MODE_DEFAULT = "default"
+	CONFIG_MODE_KEYPAIR = "keypair"
 	CONFIG_MODE_KEYLESS = "keyless"
 )
 
-func NewDefaultConfig(name, pubKey, privKey string, images []string) *DefaultConfig {
-	return &DefaultConfig{
+func NewKeypairConfig(name, pubKey, privKey string, images []string) *KeyPair {
+	return &KeyPair{
 		Name:       name,
-		Mode:       CONFIG_MODE_DEFAULT,
+		Mode:       CONFIG_MODE_KEYPAIR,
 		ChainNo:    0,
 		PublicKey:  pubKey,
 		PrivateKey: privKey,
@@ -26,8 +26,8 @@ func NewDefaultConfig(name, pubKey, privKey string, images []string) *DefaultCon
 	}
 }
 
-func NewKeylessConfig(name string, maintainers, images []string) *KeylessConfig {
-	return &KeylessConfig{
+func NewKeylessConfig(name string, maintainers, images []string) *Keyless {
+	return &Keyless{
 		Name:        name,
 		Mode:        CONFIG_MODE_KEYLESS,
 		ChainNo:     0,
@@ -105,7 +105,7 @@ func ReadRepos(repoUrls ...string) (map[string]Config, error) {
 
 func GetVerificationConfigFromVerificationInfo(info *VerificationInfo) Config {
 	if info.Mode == CONFIG_MODE_KEYLESS {
-		return &KeylessConfig{
+		return &Keyless{
 			Name:        info.Name,
 			Mode:        info.Mode,
 			ChainNo:     info.ChainNo,
@@ -114,7 +114,7 @@ func GetVerificationConfigFromVerificationInfo(info *VerificationInfo) Config {
 			Signature:   "",
 		}
 	} else {
-		return &DefaultConfig{
+		return &KeyPair{
 			Name:       info.Name,
 			Mode:       info.Mode,
 			ChainNo:    info.ChainNo,

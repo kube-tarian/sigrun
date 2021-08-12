@@ -20,7 +20,7 @@ import (
 	fulcioClient "github.com/sigstore/fulcio/pkg/client"
 )
 
-type KeylessConfig struct {
+type Keyless struct {
 	Name        string
 	Mode        string
 	ChainNo     int64
@@ -29,7 +29,7 @@ type KeylessConfig struct {
 	Signature   string
 }
 
-func (conf *KeylessConfig) VerifyImage(image string) error {
+func (conf *Keyless) VerifyImage(image string) error {
 	ctx := context.Background()
 
 	ref, err := name.ParseReference(image)
@@ -81,7 +81,7 @@ func (conf *KeylessConfig) VerifyImage(image string) error {
 	return nil
 }
 
-func (conf *KeylessConfig) GetVerificationInfo() *VerificationInfo {
+func (conf *Keyless) GetVerificationInfo() *VerificationInfo {
 	return &VerificationInfo{
 		Name:        conf.Name,
 		Mode:        conf.Mode,
@@ -92,7 +92,7 @@ func (conf *KeylessConfig) GetVerificationInfo() *VerificationInfo {
 	}
 }
 
-func (conf *KeylessConfig) VerifySuccessorConfig(config Config) error {
+func (conf *Keyless) VerifySuccessorConfig(config Config) error {
 	data, err := conf.SignDoc()
 	if err != nil {
 		return err
@@ -116,11 +116,11 @@ func (conf *KeylessConfig) VerifySuccessorConfig(config Config) error {
 	return signerVerifier.VerifySignature(bytes.NewReader(sig), bytes.NewReader(data))
 }
 
-func (conf *KeylessConfig) GetSignature() string {
+func (conf *Keyless) GetSignature() string {
 	return conf.Signature
 }
 
-func (conf *KeylessConfig) InitializeRepository() error {
+func (conf *Keyless) InitializeRepository() error {
 	conf.ChainNo = 0
 	conf.Signature = ""
 	err := set(FILE_NAME, conf)
@@ -141,7 +141,7 @@ const (
 	REKOR_URL   = "https://rekor.sigstore.dev"
 )
 
-func (conf *KeylessConfig) SignImages() error {
+func (conf *Keyless) SignImages() error {
 
 	so := cosignCLI.KeyOpts{
 		KeyRef:           "",
@@ -165,7 +165,7 @@ func (conf *KeylessConfig) SignImages() error {
 	return nil
 }
 
-func (conf *KeylessConfig) CommitRepositoryUpdate() error {
+func (conf *Keyless) CommitRepositoryUpdate() error {
 	oldConf, err := getChainHead()
 	if err != nil {
 		return err
@@ -201,11 +201,11 @@ func (conf *KeylessConfig) CommitRepositoryUpdate() error {
 	return set(".sigrun/"+fmt.Sprint(conf.ChainNo)+".json", conf)
 }
 
-func (conf *KeylessConfig) GetChainNo() int64 {
+func (conf *Keyless) GetChainNo() int64 {
 	return conf.ChainNo
 }
 
-func (conf *KeylessConfig) Sign(msg []byte) (string, error) {
+func (conf *Keyless) Sign(msg []byte) (string, error) {
 	fulcioServer, err := url.Parse(fulcioClient.SigstorePublicServerURL)
 	if err != nil {
 		return "", errors.Wrap(err, "parsing Fulcio URL")
@@ -224,12 +224,12 @@ func (conf *KeylessConfig) Sign(msg []byte) (string, error) {
 	return base64.StdEncoding.EncodeToString(sig), nil
 }
 
-func (conf *KeylessConfig) SignDoc() ([]byte, error) {
+func (conf *Keyless) SignDoc() ([]byte, error) {
 	var signDoc = *conf
 	signDoc.Signature = ""
 	return json.Marshal(signDoc)
 }
 
-func (conf *KeylessConfig) Validate() error {
+func (conf *Keyless) Validate() error {
 	return nil
 }

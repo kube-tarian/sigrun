@@ -24,7 +24,7 @@ import (
 	"github.com/sigstore/cosign/pkg/cosign"
 )
 
-type DefaultConfig struct {
+type KeyPair struct {
 	Name       string
 	Mode       string
 	ChainNo    int64
@@ -34,11 +34,11 @@ type DefaultConfig struct {
 	Signature  string
 }
 
-func (conf *DefaultConfig) GetSignature() string {
+func (conf *KeyPair) GetSignature() string {
 	return conf.Signature
 }
 
-func (conf *DefaultConfig) VerifySuccessorConfig(config Config) error {
+func (conf *KeyPair) VerifySuccessorConfig(config Config) error {
 	data, err := config.SignDoc()
 	if err != nil {
 		return err
@@ -61,7 +61,7 @@ func (conf *DefaultConfig) VerifySuccessorConfig(config Config) error {
 	return verifier.VerifySignature(bytes.NewReader(sigRaw), bytes.NewReader(data))
 }
 
-func (conf *DefaultConfig) GetVerificationInfo() *VerificationInfo {
+func (conf *KeyPair) GetVerificationInfo() *VerificationInfo {
 	return &VerificationInfo{
 		Name:        conf.Name,
 		Mode:        conf.Mode,
@@ -72,11 +72,11 @@ func (conf *DefaultConfig) GetVerificationInfo() *VerificationInfo {
 	}
 }
 
-func (conf *DefaultConfig) GetChainNo() int64 {
+func (conf *KeyPair) GetChainNo() int64 {
 	return conf.ChainNo
 }
 
-func (conf *DefaultConfig) Sign(data []byte) (string, error) {
+func (conf *KeyPair) Sign(data []byte) (string, error) {
 	password, err := cosignCLI.GetPass(true)
 	if err != nil {
 		return "", err
@@ -95,13 +95,13 @@ func (conf *DefaultConfig) Sign(data []byte) (string, error) {
 	return base64.StdEncoding.EncodeToString(sig), nil
 }
 
-func (conf *DefaultConfig) SignDoc() ([]byte, error) {
+func (conf *KeyPair) SignDoc() ([]byte, error) {
 	var signDoc = *conf
 	signDoc.Signature = ""
 	return json.Marshal(signDoc)
 }
 
-func (conf *DefaultConfig) CommitRepositoryUpdate() error {
+func (conf *KeyPair) CommitRepositoryUpdate() error {
 	oldConf, err := getChainHead()
 	if err != nil {
 		return err
@@ -137,7 +137,7 @@ func (conf *DefaultConfig) CommitRepositoryUpdate() error {
 	return set(".sigrun/"+fmt.Sprint(conf.ChainNo)+".json", conf)
 }
 
-func (conf *DefaultConfig) SignImages() error {
+func (conf *KeyPair) SignImages() error {
 	tempPrivKeyFile, err := ioutil.TempFile("", "priv-key")
 	if err != nil {
 		return err
@@ -162,7 +162,7 @@ func (conf *DefaultConfig) SignImages() error {
 	return nil
 }
 
-func (conf *DefaultConfig) InitializeRepository() error {
+func (conf *KeyPair) InitializeRepository() error {
 	conf.ChainNo = 0
 	conf.Signature = ""
 	err := set(FILE_NAME, conf)
@@ -178,12 +178,12 @@ func (conf *DefaultConfig) InitializeRepository() error {
 	return set(".sigrun/0.json", conf)
 }
 
-func (conf *DefaultConfig) Validate() error {
+func (conf *KeyPair) Validate() error {
 
 	return nil
 }
 
-func (conf *DefaultConfig) VerifyImage(image string) error {
+func (conf *KeyPair) VerifyImage(image string) error {
 	key := []byte(conf.PublicKey)
 	pubKey, err := decodePEM(key)
 	if err != nil {

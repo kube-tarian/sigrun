@@ -1,8 +1,10 @@
 {
 	"Name": "sigrun",
+	"Mode": "keyless",
 	"ChainNo": 0,
-	"PublicKey": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE2Jc23oay98SyFJ83afFIF78AzGBD\naE7ds4NhodD6HWjuh1R7Ztk4YY9hUDUBi79ZyjELp/GC2muqUNjkWgz1Lw==\n-----END PUBLIC KEY-----\n",
-	"PrivateKey": "-----BEGIN ENCRYPTED COSIGN PRIVATE KEY-----\neyJrZGYiOnsibmFtZSI6InNjcnlwdCIsInBhcmFtcyI6eyJOIjozMjc2OCwiciI6\nOCwicCI6MX0sInNhbHQiOiI2UThFbm5sQ2ZaNXJGaHJ6Y1Q0VnlPMjdENXF4M01B\nVW83TkdsempPeTV3PSJ9LCJjaXBoZXIiOnsibmFtZSI6Im5hY2wvc2VjcmV0Ym94\nIiwibm9uY2UiOiI2MGVyY2V0alNBZWwwSWtLaXhaUGFKY2g5YS9tQm1kTSJ9LCJj\naXBoZXJ0ZXh0Ijoic1hrbnR5UXI1emZ5R2Vkd0F3UnpHMG9hT3N6blBKeGFDeU92\nLzVnKzVKWHVaNzJjTjJXZStrUmJpYkJNSGhPdGM0ck13REtYM0RMdGtGOTljdWVC\nek55ZSt1M3ZDalNBNzU4YStwZktDdEcycWE1VEpFT0owTHpQdmVET1NSYm5ZMXhV\nMHNuMEZFdE81NDM5U3hidDc5UWRUdU8zR0dLQlF0L3hNb242dFRKU2o1dmNoWTJJ\nbTBtZ1gwSFFFSDdEdUk2TGtOYXdqWllpVGc9PSJ9\n-----END ENCRYPTED COSIGN PRIVATE KEY-----\n",
+	"Maintainers": [
+		"shravanshetty322@gmail.com"
+	],
 	"Images": [
 		"docker.io/shravanss/sigrun-example"
 	],

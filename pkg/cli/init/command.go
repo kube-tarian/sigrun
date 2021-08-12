@@ -32,14 +32,14 @@ func Command() *cobra.Command {
 			}
 			images := strings.Split(imagePathsLine, ",")
 
-			fmt.Println("Please enter the mode of operation\nModes of operation - 'keyless','default'")
+			fmt.Printf("Please enter the mode of operation, default - '%v'\nModes of operation - '%v','%v'\n", config.CONFIG_MODE_KEYLESS, config.CONFIG_MODE_KEYLESS, config.CONFIG_MODE_KEYPAIR)
 			var mode string
 			_, err = fmt.Scanf("%s", &mode)
 			if err != nil {
 				return err
 			}
 
-			if mode != "keyless" {
+			if mode == config.CONFIG_MODE_KEYPAIR {
 				keys, err := cosign.GenerateKeyPair(func(b bool) ([]byte, error) {
 					return cosignCLI.GetPass(b)
 				})
@@ -47,7 +47,7 @@ func Command() *cobra.Command {
 					return err
 				}
 
-				return config.NewDefaultConfig(name, string(keys.PublicBytes), string(keys.PrivateBytes), images).InitializeRepository()
+				return config.NewKeypairConfig(name, string(keys.PublicBytes), string(keys.PrivateBytes), images).InitializeRepository()
 			} else {
 				fmt.Println("Please enter the email id's of the maintainers")
 				var emailsLine string

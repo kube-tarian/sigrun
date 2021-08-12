@@ -1,0 +1,13 @@
+{
+	"Name": "sigrun",
+	"Mode": "keyless",
+	"ChainNo": 2,
+	"Maintainers": [
+		"shravanshetty322@gmail.com"
+	],
+	"Images": [
+		"docker.io/shravanss/sigrun-example",
+		"docker.io/shravanss/sigrun-example2"
+	],
+	"Signature": "MEYCIQD/9KJL8w98B+VO9jfzdUaQ4gH4uM5QG/psORQaXjyywgIhAJuTK/VBxylKl5FVuKELKwMHsaJrXf90Pl9dpmPrMKIh"
+}
