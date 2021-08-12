@@ -43,7 +43,7 @@ func (conf *KeylessConfig) VerifyImage(image string) error {
 	}
 
 	cosignOpts := &cosign.CheckOpts{
-		RootCerts:          fulcio.GetRoots(),
+		RootCerts:          fulcio.Roots,
 		RegistryClientOpts: cosignCLI.DefaultRegistryClientOpts(ctx),
 		ClaimVerifier:      cosign.SimpleClaimVerifier,
 		RekorURL:           REKOR_URL,

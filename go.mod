@@ -5,17 +5,16 @@ go 1.16
 require (
 	github.com/docker/distribution v2.7.1+incompatible
 	github.com/google/go-containerregistry v0.6.0
-	github.com/kyverno/kyverno v1.4.2-0.20210710010146-13caaed8b778
+	github.com/kyverno/kyverno v1.4.2
 	github.com/pkg/errors v0.9.1
-	github.com/sassoftware/relic v7.2.1+incompatible
-	github.com/sigstore/cosign v1.0.2-0.20210811225649-61b103bb7c59
+	github.com/sigstore/cosign v1.0.1
 	github.com/sigstore/fulcio v0.1.1
 	github.com/sigstore/sigstore v0.0.0-20210729211320-56a91f560f44
 	github.com/spf13/cobra v1.2.1
 	github.com/tidwall/pretty v1.2.0
 	k8s.io/api v0.22.0
 	k8s.io/apimachinery v0.22.0
-	k8s.io/cli-runtime v0.21.1
+	k8s.io/cli-runtime v0.22.0
 	k8s.io/client-go v0.22.0
 )
 

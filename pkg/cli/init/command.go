@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/sassoftware/relic/lib/pkcs7"
-
 	"github.com/devopstoday11/sigrun/pkg/cli/init/cluster"
 
 	"github.com/devopstoday11/sigrun/pkg/config"
@@ -19,10 +17,6 @@ func Command() *cobra.Command {
 		Use:   "init",
 		Short: "Provides an interactive interface to create a sigrun repository",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			var s *pkcs7.RawCertificates
-			if s == nil {
-
-			}
 			fmt.Println("Please enter the name of this sigrun repo")
 			var name string
 			_, err := fmt.Scanf("%s", &name)
