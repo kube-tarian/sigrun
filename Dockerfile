@@ -8,5 +8,5 @@ COPY go.mod .
 RUN go mod download
 # COPY the source code as the last step
 COPY . .
-RUN go build -o main main.go
+RUN go build -o main cmd/sigrun-controller/main.go
 ENTRYPOINT ./main

@@ -75,7 +75,7 @@ func detectControllerType() (string, error) {
 
 	configMap, err := kclient.CoreV1().ConfigMaps(SIGRUN_CONTROLLER_NAMESPACE).Get(context.Background(), SIGRUN_CONTROLLER_CONFIG, v1.GetOptions{})
 	if err != nil {
-		if !strings.Contains(err.Error(), "not find") {
+		if !strings.Contains(err.Error(), "not found") {
 			return "", err
 		}
 	} else {

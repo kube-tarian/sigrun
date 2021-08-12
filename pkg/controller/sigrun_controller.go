@@ -43,7 +43,7 @@ func (s *sigrunController) Init() error {
 
 	configMap, err := kclient.CoreV1().ConfigMaps(SIGRUN_CONTROLLER_NAMESPACE).Get(context.Background(), SIGRUN_CONTROLLER_CONFIG, v1.GetOptions{})
 	if err != nil {
-		if !strings.Contains(err.Error(), "not find") {
+		if !strings.Contains(err.Error(), "not found") {
 			return err
 		}
 	} else {
@@ -52,7 +52,7 @@ func (s *sigrunController) Init() error {
 		}
 	}
 
-	err = exec.Command("kubectl", "create", "-f", "https://raw.githubusercontent.com/devopstoday11/sigrun/main/sigrun-controller/install.yaml").Run()
+	err = exec.Command("kubectl", "apply", "-f", "https://raw.githubusercontent.com/devopstoday11/sigrun/main/install.yaml").Run()
 	if err != nil {
 		return err
 	}
@@ -251,7 +251,9 @@ func (s *sigrunController) addRepo(configMap *kubernetesCoreV1.ConfigMap, guid, 
 	}
 	imageToGuids := make(map[string][]string)
 	_ = json.NewDecoder(strings.NewReader(string(imageToGuidsRaw))).Decode(&imageToGuids)
-	imageToGuids[guid] = append(imageToGuids[guid], guid)
+	for _, img := range conf.Images {
+		imageToGuids[img] = append(imageToGuids[img], guid)
+	}
 
 	guidToRepoRaw, err := json.Marshal(guidToRepoMeta)
 	if err != nil {

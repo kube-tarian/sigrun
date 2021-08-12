@@ -78,8 +78,8 @@ func main() {
 				return
 			}
 
-			digestStrippedImg := strings.Split(img, "@")[0]
-			for _, guid := range imageToGuids[digestStrippedImg] {
+			strippedImg := strings.Split(img, ":")[0]
+			for _, guid := range imageToGuids[strippedImg] {
 				conf := config.GetVerificationConfigFromVerificationInfo(&guidToRepo[guid].VerificationInfo)
 				err := conf.VerifyImage(img)
 				if err != nil {
@@ -92,7 +92,6 @@ func main() {
 						},
 					}
 					json.NewEncoder(w).Encode(arResponse)
-					w.WriteHeader(400)
 					return
 				}
 			}
@@ -104,7 +103,6 @@ func main() {
 			},
 		}
 		json.NewEncoder(w).Encode(arResponse)
-		w.WriteHeader(200)
 	})
 
 	log.Printf("Server running listening in port: %s", PORT)
