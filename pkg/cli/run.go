@@ -3,6 +3,8 @@ package cli
 import (
 	"os"
 
+	chain_commit "github.com/devopstoday11/sigrun/pkg/cli/chain-commit"
+
 	"github.com/devopstoday11/sigrun/pkg/cli/remove"
 
 	"github.com/devopstoday11/sigrun/pkg/cli/verify"
