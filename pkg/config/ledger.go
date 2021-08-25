@@ -71,6 +71,10 @@ func NewChecksum(path string) (*Checksum, error) {
 		currPath := filepath.Join(path, f.Name())
 
 		if f.IsDir() {
+			if filepath.Base(currPath) == ".git" {
+				continue
+			}
+
 			checksum, err = NewChecksum(currPath)
 			if err != nil {
 				return nil, err
