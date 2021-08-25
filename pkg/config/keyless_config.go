@@ -151,7 +151,12 @@ const (
 	REKOR_URL   = "https://rekor.sigstore.dev"
 )
 
-func (conf *Keyless) SignImages() error {
+func (conf *Keyless) SignImages(annotations map[string]string) error {
+
+	var compatibleAnnotations = make(map[string]interface{})
+	for k, v := range annotations {
+		compatibleAnnotations[k] = v
+	}
 
 	so := cosignCLI.KeyOpts{
 		KeyRef:           "",
@@ -167,7 +172,7 @@ func (conf *Keyless) SignImages() error {
 	}
 	ctx := context.Background()
 	for _, img := range conf.Images {
-		if err := cosignCLI.SignCmd(ctx, so, nil, img, "", true, "", false, false); err != nil {
+		if err := cosignCLI.SignCmd(ctx, so, compatibleAnnotations, img, "", true, "", false, false); err != nil {
 			return errors.Wrapf(err, "signing %s", img)
 		}
 	}
@@ -183,7 +188,7 @@ func (conf *Keyless) SignImages() error {
 		return err
 	}
 
-	err = ledger.AddEntry(nil)
+	err = ledger.AddEntry(annotations)
 	if err != nil {
 		return err
 	}

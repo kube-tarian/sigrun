@@ -137,7 +137,12 @@ func (conf *KeyPair) CommitRepositoryUpdate() error {
 	return set(".sigrun/"+fmt.Sprint(conf.ChainNo)+".json", conf)
 }
 
-func (conf *KeyPair) SignImages() error {
+func (conf *KeyPair) SignImages(annotations map[string]string) error {
+	var compatibleAnnotations = make(map[string]interface{})
+	for k, v := range annotations {
+		compatibleAnnotations[k] = v
+	}
+
 	tempPrivKeyFile, err := ioutil.TempFile("", "priv-key")
 	if err != nil {
 		return err
@@ -155,7 +160,7 @@ func (conf *KeyPair) SignImages() error {
 	}
 	ctx := context.Background()
 	for _, img := range conf.Images {
-		if err := cosignCLI.SignCmd(ctx, so, nil, img, "", true, "", false, false); err != nil {
+		if err := cosignCLI.SignCmd(ctx, so, compatibleAnnotations, img, "", true, "", false, false); err != nil {
 			return errors.Wrapf(err, "signing %s", img)
 		}
 	}
@@ -171,7 +176,7 @@ func (conf *KeyPair) SignImages() error {
 		return err
 	}
 
-	err = ledger.AddEntry(nil)
+	err = ledger.AddEntry(annotations)
 	if err != nil {
 		return err
 	}

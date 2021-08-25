@@ -41,7 +41,7 @@ func NewKeylessConfig(name string, maintainers, images []string) *Keyless {
 
 type Config interface {
 	InitializeRepository() error
-	SignImages() error
+	SignImages(map[string]string) error
 	CommitRepositoryUpdate() error
 	GetChainNo() int64
 	Sign([]byte) (string, error)

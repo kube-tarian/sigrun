@@ -3,12 +3,15 @@ package config
 import (
 	"crypto/sha256"
 	"encoding/base64"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 )
 
 type Ledger struct {
@@ -16,8 +19,11 @@ type Ledger struct {
 }
 
 type LedgerEntry struct {
-	Annotations map[string]string
-	Checksum    *Checksum
+	GitCommitHash string
+	Hash          string
+	Timestamp     string
+	Annotations   map[string]string
+	Checksum      *Checksum
 }
 
 type Checksum struct {
@@ -36,9 +42,14 @@ func (l *Ledger) AddEntry(annotations map[string]string) error {
 		return err
 	}
 
+	gitCommitHash, _ := exec.Command("git", strings.Split("rev-parse HEAD", " ")...).Output()
+
 	l.Entries = append(l.Entries, &LedgerEntry{
-		Annotations: annotations,
-		Checksum:    checksum,
+		GitCommitHash: strings.TrimSpace(string(gitCommitHash)),
+		Hash:          checksum.Hash,
+		Timestamp:     fmt.Sprint(time.Now().UnixNano()),
+		Annotations:   annotations,
+		Checksum:      checksum,
 	})
 
 	return nil
