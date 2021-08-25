@@ -151,6 +151,7 @@ func (conf *KeyPair) SignImages() error {
 	so := cosignCLI.KeyOpts{
 		KeyRef:   tempPrivKeyFile.Name(),
 		PassFunc: cosignCLI.GetPass,
+		RekorURL: REKOR_URL,
 	}
 	ctx := context.Background()
 	for _, img := range conf.Images {
@@ -159,7 +160,23 @@ func (conf *KeyPair) SignImages() error {
 		}
 	}
 
-	return nil
+	f, err := os.Open(LEDGER_FILE_NAME)
+	if err != nil {
+		return err
+	}
+
+	var ledger *Ledger
+	err = json.NewDecoder(f).Decode(&ledger)
+	if err != nil {
+		return err
+	}
+
+	err = ledger.AddEntry(nil)
+	if err != nil {
+		return err
+	}
+
+	return set(LEDGER_FILE_NAME, ledger)
 }
 
 func (conf *KeyPair) InitializeRepository() error {
@@ -171,6 +188,11 @@ func (conf *KeyPair) InitializeRepository() error {
 	}
 
 	err = os.Mkdir(".sigrun", os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	err = set(LEDGER_FILE_NAME, NewLedger())
 	if err != nil {
 		return err
 	}

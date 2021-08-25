@@ -138,6 +138,11 @@ func (conf *Keyless) InitializeRepository() error {
 		return err
 	}
 
+	err = set(LEDGER_FILE_NAME, NewLedger())
+	if err != nil {
+		return err
+	}
+
 	return set(".sigrun/0.json", conf)
 }
 
@@ -167,7 +172,23 @@ func (conf *Keyless) SignImages() error {
 		}
 	}
 
-	return nil
+	f, err := os.Open(LEDGER_FILE_NAME)
+	if err != nil {
+		return err
+	}
+
+	var ledger *Ledger
+	err = json.NewDecoder(f).Decode(&ledger)
+	if err != nil {
+		return err
+	}
+
+	err = ledger.AddEntry(nil)
+	if err != nil {
+		return err
+	}
+
+	return set(LEDGER_FILE_NAME, ledger)
 }
 
 func (conf *Keyless) CommitRepositoryUpdate() error {

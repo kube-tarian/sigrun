@@ -12,7 +12,7 @@ import (
 	"github.com/devopstoday11/sigrun/pkg/util"
 )
 
-func set(path string, conf Config) error {
+func set(path string, content interface{}) error {
 	configF, err := os.Create(path)
 	if err != nil {
 		return err
@@ -20,7 +20,7 @@ func set(path string, conf Config) error {
 
 	encoder := json.NewEncoder(configF)
 	encoder.SetIndent("", "	")
-	err = encoder.Encode(conf)
+	err = encoder.Encode(content)
 	if err != nil {
 		return err
 	}
@@ -29,6 +29,7 @@ func set(path string, conf Config) error {
 }
 
 const FILE_NAME = "sigrun-config.json"
+const LEDGER_FILE_NAME = "sigrun-ledger.json"
 
 func detectConfigType(encodedConfig []byte) (string, error) {
 	var obj struct {

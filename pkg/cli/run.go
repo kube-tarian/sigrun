@@ -3,8 +3,6 @@ package cli
 import (
 	"os"
 
-	chain_commit "github.com/devopstoday11/sigrun/pkg/cli/chain-commit"
-
 	"github.com/devopstoday11/sigrun/pkg/cli/remove"
 
 	"github.com/devopstoday11/sigrun/pkg/cli/verify"
@@ -13,7 +11,6 @@ import (
 	initCmd "github.com/devopstoday11/sigrun/pkg/cli/init"
 	"github.com/devopstoday11/sigrun/pkg/cli/list"
 	"github.com/devopstoday11/sigrun/pkg/cli/sign"
-	"github.com/devopstoday11/sigrun/pkg/cli/update"
 	cosignCLI "github.com/sigstore/cosign/cmd/cosign/cli"
 	"github.com/spf13/cobra"
 )
@@ -29,7 +26,7 @@ func Run() error {
 	// TODO required for keyless mode
 	os.Setenv(cosignCLI.ExperimentalEnv, "1")
 
-	cli.AddCommand(initCmd.Command(), list.Command(), add.Command(), sign.Command(), update.Command(), chain_commit.Command(), remove.Command(), verify.Command())
+	cli.AddCommand(initCmd.Command(), list.Command(), add.Command(), sign.Command(), remove.Command(), verify.Command())
 
 	if err := cli.Execute(); err != nil {
 		return err
