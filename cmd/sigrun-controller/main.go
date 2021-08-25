@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -10,8 +9,6 @@ import (
 	"strings"
 
 	"github.com/devopstoday11/sigrun/pkg/config"
-
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/devopstoday11/sigrun/pkg/controller"
 
@@ -41,6 +38,8 @@ func main() {
 		log.Fatal(err)
 	}
 
+	cache := controller.NewConfigMapCache(kclient)
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/validate", func(w http.ResponseWriter, r *http.Request) {
 		var req v1beta1.AdmissionReview
@@ -57,7 +56,7 @@ func main() {
 			return
 		}
 
-		configMap, err := kclient.CoreV1().ConfigMaps(controller.SIGRUN_CONTROLLER_NAMESPACE).Get(context.Background(), controller.SIGRUN_CONTROLLER_CONFIG, v1.GetOptions{})
+		configMap, err := cache.Get()
 		if err != nil {
 			log.Println(err)
 			return
