@@ -152,11 +152,29 @@ const (
 )
 
 func (conf *Keyless) SignImages(annotations map[string]string) error {
+	f, err := os.Open(LEDGER_FILE_NAME)
+	if err != nil {
+		return err
+	}
+
+	var ledger *Ledger
+	err = json.NewDecoder(f).Decode(&ledger)
+	if err != nil {
+		return err
+	}
+
+	err = ledger.AddEntry(annotations)
+	if err != nil {
+		return err
+	}
 
 	var compatibleAnnotations = make(map[string]interface{})
 	for k, v := range annotations {
 		compatibleAnnotations[k] = v
 	}
+
+	jsonEncodedLedgerEntry, _ := json.Marshal(ledger.Entries[len(ledger.Entries)-1])
+	compatibleAnnotations["sigrun-ledger-entry"] = jsonEncodedLedgerEntry
 
 	so := cosignCLI.KeyOpts{
 		KeyRef:           "",
@@ -175,22 +193,6 @@ func (conf *Keyless) SignImages(annotations map[string]string) error {
 		if err := cosignCLI.SignCmd(ctx, so, compatibleAnnotations, img, "", true, "", false, false); err != nil {
 			return errors.Wrapf(err, "signing %s", img)
 		}
-	}
-
-	f, err := os.Open(LEDGER_FILE_NAME)
-	if err != nil {
-		return err
-	}
-
-	var ledger *Ledger
-	err = json.NewDecoder(f).Decode(&ledger)
-	if err != nil {
-		return err
-	}
-
-	err = ledger.AddEntry(annotations)
-	if err != nil {
-		return err
 	}
 
 	return set(LEDGER_FILE_NAME, ledger)
