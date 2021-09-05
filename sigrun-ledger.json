@@ -1,7 +1,13 @@
 {
 	"Entries": [
 		{
-			"GitCommitHash": "40684d55751f4b5b6f46fbdc36561651fc815e34",
+			"Id": 0,
+			"Git": {
+				"Hash": "",
+				"Message": "",
+				"Author": "",
+				"UnixTime": 0
+			},
 			"Hash": "H51ZIm/h20JLsKthpUKVOyKQA+xkfP1iBHlQgLX4LKM=",
 			"Timestamp": "1630214156929761423",
 			"Annotations": {},
@@ -325,7 +331,13 @@
 			}
 		},
 		{
-			"GitCommitHash": "40684d55751f4b5b6f46fbdc36561651fc815e34",
+			"Id": 0,
+			"Git": {
+				"Hash": "",
+				"Message": "",
+				"Author": "",
+				"UnixTime": 0
+			},
 			"Hash": "JdJ+zcU0xvS/eICT1nsBvoedEnVGUxqwA9tDDBDoakg=",
 			"Timestamp": "1630214265272838860",
 			"Annotations": {
@@ -652,7 +664,13 @@
 			}
 		},
 		{
-			"GitCommitHash": "40684d55751f4b5b6f46fbdc36561651fc815e34",
+			"Id": 0,
+			"Git": {
+				"Hash": "",
+				"Message": "",
+				"Author": "",
+				"UnixTime": 0
+			},
 			"Hash": "Bo1Dwc+bu9cyaufeVL1h0m05VQNN1qS6WduG9k73hm4=",
 			"Timestamp": "1630215151390584141",
 			"Annotations": {
@@ -969,6 +987,336 @@
 					{
 						"Path": "/home/anon/projects/sigrun/sigrun-ledger.json",
 						"Hash": "GL76AWMLv41Hgd0vN3bczAb66a/mnlgyltEFAS+vT08="
+					},
+					{
+						"Path": "/home/anon/projects/sigrun/sigrun.png",
+						"Hash": "Cwm4ViKH1zeapMC9rkmOd5g69zFuem8BXkLrzxE5kbo="
+					}
+				]
+			}
+		},
+		{
+			"Id": 4,
+			"Git": {
+				"Hash": "723f99d2d1bfb67c882946a0edd05d7148880714",
+				"Message": "added ledger signature in .sigrun/ledger.sig\n",
+				"Author": "Shravan Shetty \u003cshravanshetty322@gmail.com\u003e",
+				"UnixTime": 1630842059000000000
+			},
+			"Hash": "1gMbBfJQpsLSSDKNQMtQWUjMZBJNf8zcLweooAcr4ZE=",
+			"Timestamp": "1630844319776051088",
+			"Annotations": {},
+			"Checksum": {
+				"Path": "/home/anon/projects/sigrun",
+				"Hash": "1gMbBfJQpsLSSDKNQMtQWUjMZBJNf8zcLweooAcr4ZE=",
+				"children": [
+					{
+						"Path": "/home/anon/projects/sigrun/.github",
+						"Hash": "qkIkdacsxdQBsVIAnLoqE+inbwFAyN0UAAP1yzW5Ngw=",
+						"children": [
+							{
+								"Path": "/home/anon/projects/sigrun/.github/workflows",
+								"Hash": "1taBh7kyCeXLLo7D2d05lkoUx5ohVRdycba4cldq0HY=",
+								"children": [
+									{
+										"Path": "/home/anon/projects/sigrun/.github/workflows/ci.yml",
+										"Hash": "8TVbOEklj4DtyTPl6551h49Xea1coy8L/ZnlBp6viQo="
+									}
+								]
+							}
+						]
+					},
+					{
+						"Path": "/home/anon/projects/sigrun/.gitignore",
+						"Hash": "fPvcIVfDnEc6116+4gHM5VNVI+m8W7g4fOP2sXFM60E="
+					},
+					{
+						"Path": "/home/anon/projects/sigrun/.idea",
+						"Hash": "Sn5S5mrtGzVrBGuzX6yidV5DBztxvTpJShG54+t6jB0=",
+						"children": [
+							{
+								"Path": "/home/anon/projects/sigrun/.idea/.gitignore",
+								"Hash": "cAA3xsNKKlXb0lHXGkXBgm81LlMI9Nz9HlocDL7tPSk="
+							},
+							{
+								"Path": "/home/anon/projects/sigrun/.idea/misc.xml",
+								"Hash": "jiBUIoLNoO3PVZNHFbeuPqK7i2ghgKEpmbgvBHXqizY="
+							},
+							{
+								"Path": "/home/anon/projects/sigrun/.idea/modules.xml",
+								"Hash": "pZPWa3Nbx0DvEFBDnTqBfQ1KZ6pLhVLM0fIk+9vQNE4="
+							},
+							{
+								"Path": "/home/anon/projects/sigrun/.idea/sigrun.iml",
+								"Hash": "6cAE1b7tuNhQGqVFYJa9XRgYDzCBzS9W6BlsRGWYOKI="
+							},
+							{
+								"Path": "/home/anon/projects/sigrun/.idea/vcs.xml",
+								"Hash": "q4OO12Gn17mS4y/Giq2cEdmf+Nr3swR+746kxIivfWU="
+							},
+							{
+								"Path": "/home/anon/projects/sigrun/.idea/watcherTasks.xml",
+								"Hash": "ble8dU/+S+qlS1iwu5fzGeOGcGKUhCT/N/Ct7vzoqo0="
+							},
+							{
+								"Path": "/home/anon/projects/sigrun/.idea/workspace.xml",
+								"Hash": "uBRApO9jWZFE8YLP7IgkMb+8Jg26b4IoFBZuC9Ewj2Y="
+							}
+						]
+					},
+					{
+						"Path": "/home/anon/projects/sigrun/.sigrun",
+						"Hash": "fGEmpnxl1iJKoSpUHz0n5FppnoDEIDluyGTqSzqWcwc=",
+						"children": [
+							{
+								"Path": "/home/anon/projects/sigrun/.sigrun/0.json",
+								"Hash": "aP5T2d7rhNbSMw9N+86Hp8oaDIAoPAIIK/hHpQwI75Y="
+							}
+						]
+					},
+					{
+						"Path": "/home/anon/projects/sigrun/Dockerfile",
+						"Hash": "gCjtQz18F0XjFoeydm5NXbiHVsBvmwkhH3ntcS/hm0A="
+					},
+					{
+						"Path": "/home/anon/projects/sigrun/LICENSE",
+						"Hash": "xx0jnfkXJvxRnG63LTGOxlggYnIysveWIZ6H3PNdCrQ="
+					},
+					{
+						"Path": "/home/anon/projects/sigrun/README.md",
+						"Hash": "u8xvq0UOFyzZtI5yj7RRKrbEhufbr+flBMbqI13pjKs="
+					},
+					{
+						"Path": "/home/anon/projects/sigrun/SPEC.md",
+						"Hash": "2MK0JRl0Wov6oUnBpdza5PgXF/6xhMywDPvsAP1e+YU="
+					},
+					{
+						"Path": "/home/anon/projects/sigrun/cmd",
+						"Hash": "rW8k7o6ANTC84nHS6raK8T9OVK3qxvXZeaiv0/29B9o=",
+						"children": [
+							{
+								"Path": "/home/anon/projects/sigrun/cmd/sigrun",
+								"Hash": "ZpoHBYL5jVG8oVg0XrwO1nsVvoUpHupz6ZXaQgNeOPI=",
+								"children": [
+									{
+										"Path": "/home/anon/projects/sigrun/cmd/sigrun/sigrun.go",
+										"Hash": "vtsdtlHhdKJJW/U7psBCgoVIN1rNpup09yqUmlLXMnw="
+									}
+								]
+							},
+							{
+								"Path": "/home/anon/projects/sigrun/cmd/sigrun-controller",
+								"Hash": "SvfI7yAJDOSiHxYw6by8m3wz2psfZGJWt5aW5LpaqQs=",
+								"children": [
+									{
+										"Path": "/home/anon/projects/sigrun/cmd/sigrun-controller/main.go",
+										"Hash": "PSkoYEq3J/gs7MLIxZFqYC+9IEJSNMnpJv0Or+8hotk="
+									}
+								]
+							}
+						]
+					},
+					{
+						"Path": "/home/anon/projects/sigrun/docs",
+						"Hash": "p159CoVBlk+jBCfu4j0xz/G8jAHifOKbOwvH62pl+5s=",
+						"children": [
+							{
+								"Path": "/home/anon/projects/sigrun/docs/KEYLESS.MD",
+								"Hash": "iF/PP7zOvXcj3Jx3re9BKpOlGX/7QynxHn1XztgLV74="
+							}
+						]
+					},
+					{
+						"Path": "/home/anon/projects/sigrun/example",
+						"Hash": "h4ysml7dlLKk/CDD7wsnd8HQV54pv0kVSmqxJfn7Yr4=",
+						"children": [
+							{
+								"Path": "/home/anon/projects/sigrun/example/Dockerfile",
+								"Hash": "8ZIXKxb3MpgHJzzOLP0bk3WTW0PAS8aZkP4DLn69dzg="
+							},
+							{
+								"Path": "/home/anon/projects/sigrun/example/go.mod",
+								"Hash": "CXxKNTko/yFoJiPWsxlpIsyfI5SOIHJ3jhJiRyvG78Y="
+							},
+							{
+								"Path": "/home/anon/projects/sigrun/example/main.go",
+								"Hash": "s1/rWv39En1cw74PdDWsX2CyAI/ZibB7TwbBPBSO7O0="
+							}
+						]
+					},
+					{
+						"Path": "/home/anon/projects/sigrun/go.mod",
+						"Hash": "/pQQZHfw/rMd4TYyKbuwfymlPmymj2ljzKcokRsVw50="
+					},
+					{
+						"Path": "/home/anon/projects/sigrun/go.sum",
+						"Hash": "IZukbLD43ybUYtm85yzUuMtbADfKZwKTkOIq5cFzOss="
+					},
+					{
+						"Path": "/home/anon/projects/sigrun/install.yaml",
+						"Hash": "imW97aUt5Z6R4WJDFUS5k08td4tUmRZhFOi/Er+7HXU="
+					},
+					{
+						"Path": "/home/anon/projects/sigrun/pkg",
+						"Hash": "UxDrZJw01JDe3AXHzzyXHZCC/8n62IQDld2UQ4eK9Uc=",
+						"children": [
+							{
+								"Path": "/home/anon/projects/sigrun/pkg/cli",
+								"Hash": "xuHgmc/ejY2vNFRYhuQg7NfcIg23Z335SCpIYnAvJ2w=",
+								"children": [
+									{
+										"Path": "/home/anon/projects/sigrun/pkg/cli/add",
+										"Hash": "YTmHO/2jQALsD3qI81rwHz7nzpjOqmwsSo1BTiZHgTs=",
+										"children": [
+											{
+												"Path": "/home/anon/projects/sigrun/pkg/cli/add/command.go",
+												"Hash": "bZxp5jVT48YAYAldMOoN1B/xoO29MSGpXSiCQXsc4RU="
+											}
+										]
+									},
+									{
+										"Path": "/home/anon/projects/sigrun/pkg/cli/init",
+										"Hash": "ndOQg9629d0vNZiYmSCuJv5ueClYgC68NKePtR2/Izc=",
+										"children": [
+											{
+												"Path": "/home/anon/projects/sigrun/pkg/cli/init/cluster",
+												"Hash": "efp5emUzL+HGJ7fk9drwY0IQO7VTTOYDqKcpd3RrWzg=",
+												"children": [
+													{
+														"Path": "/home/anon/projects/sigrun/pkg/cli/init/cluster/command.go",
+														"Hash": "mqMeSBHlliIDK2WhB5Y0PGD5r0D3FXnsrxSv+IUO19o="
+													}
+												]
+											},
+											{
+												"Path": "/home/anon/projects/sigrun/pkg/cli/init/command.go",
+												"Hash": "LIFH32bdqVfG7Mb2hOg4P4h/vmA96YQydDZQpqsG9J8="
+											}
+										]
+									},
+									{
+										"Path": "/home/anon/projects/sigrun/pkg/cli/list",
+										"Hash": "fjnWeSoAD1oXX7bRVHWpxBjhw1nbVniXOl9qqWbHWN4=",
+										"children": [
+											{
+												"Path": "/home/anon/projects/sigrun/pkg/cli/list/command.go",
+												"Hash": "WahEp1NXNhSgd5GkUVmsV6ZcnbI42TamdSibXYOMyVk="
+											}
+										]
+									},
+									{
+										"Path": "/home/anon/projects/sigrun/pkg/cli/remove",
+										"Hash": "Na8B7ENkQ3jmmhqNhzVw3DTevbuc+DP2315djEwNTOM=",
+										"children": [
+											{
+												"Path": "/home/anon/projects/sigrun/pkg/cli/remove/command.go",
+												"Hash": "PgLAAfwmYNzdrOQKRhjf8+ASJ1vxIw0tM4sl40awGpc="
+											}
+										]
+									},
+									{
+										"Path": "/home/anon/projects/sigrun/pkg/cli/run.go",
+										"Hash": "1NFtcAJuEYcA/31GDbDYoR3FRf0pPHLxssKaZb3t++8="
+									},
+									{
+										"Path": "/home/anon/projects/sigrun/pkg/cli/sign",
+										"Hash": "xP9fGGZhYSyYtcU+no8EzNqlHz0TAsGKoHu9RLrEfxI=",
+										"children": [
+											{
+												"Path": "/home/anon/projects/sigrun/pkg/cli/sign/command.go",
+												"Hash": "yN2UdfvO0bxF0ZoTuZxsQfdaFKZ4tzCFNWHQ8H7N48o="
+											}
+										]
+									},
+									{
+										"Path": "/home/anon/projects/sigrun/pkg/cli/verify",
+										"Hash": "9IL8KXfMXlwNYAqY72PxdS2EdR8sOShoSn+h206R07w=",
+										"children": [
+											{
+												"Path": "/home/anon/projects/sigrun/pkg/cli/verify/command.go",
+												"Hash": "IhNmFEw6mGNtEa3g55czQTPokJYyiYrz6dheFeOKSuY="
+											}
+										]
+									}
+								]
+							},
+							{
+								"Path": "/home/anon/projects/sigrun/pkg/config",
+								"Hash": "uASQHVmoHG+FzA6DJtdfW1za0PZLfzlEUy64lb4va4I=",
+								"children": [
+									{
+										"Path": "/home/anon/projects/sigrun/pkg/config/config.go",
+										"Hash": "Wx+OeMTIAF8X5dbQicGXODPec2DhGRKN6p30TLyNYuo="
+									},
+									{
+										"Path": "/home/anon/projects/sigrun/pkg/config/keyless_config.go",
+										"Hash": "DJ3b1OJxfw/yQPWhl4XotoU5zGtTZDVfShf5lHqJOAY="
+									},
+									{
+										"Path": "/home/anon/projects/sigrun/pkg/config/keypair_config.go",
+										"Hash": "VNN2mqi7p7Z2KyLLimEcnEvqzA7ZF91Sg3C4klzNeoE="
+									},
+									{
+										"Path": "/home/anon/projects/sigrun/pkg/config/ledger.go",
+										"Hash": "WVSV9QtTAU0G7C/zo2m7FPmKzekQY/kaBYlM3GEINCk="
+									},
+									{
+										"Path": "/home/anon/projects/sigrun/pkg/config/util.go",
+										"Hash": "qZdhMZChfYfctzestuJiUdh1YHHrk/B7sWHEFAoS9kM="
+									}
+								]
+							},
+							{
+								"Path": "/home/anon/projects/sigrun/pkg/controller",
+								"Hash": "rY+GLZY7Y3e0NJoTL7vcxmbO2n/SSbWvt80oRKTKppU=",
+								"children": [
+									{
+										"Path": "/home/anon/projects/sigrun/pkg/controller/cache.go",
+										"Hash": "BjSZmluKZ5tZgei61W9Bme+ep4Mga2wWB3Y0G/DUGCk="
+									},
+									{
+										"Path": "/home/anon/projects/sigrun/pkg/controller/controller.go",
+										"Hash": "W+TBOwuaHWgky1IfmOdJjwIpTfHt0SKCbqYdNzu7x+o="
+									},
+									{
+										"Path": "/home/anon/projects/sigrun/pkg/controller/kyverno_controller.go",
+										"Hash": "7Nf4RrtYgODldD0n2Bxubbihr6STVpXtIzqZxC2+Cd0="
+									},
+									{
+										"Path": "/home/anon/projects/sigrun/pkg/controller/sigrun_controller.go",
+										"Hash": "UOUJIpmZRhsWDqizsnSBuE07x5BVBBoHoAGc7U0x5MU="
+									}
+								]
+							},
+							{
+								"Path": "/home/anon/projects/sigrun/pkg/util",
+								"Hash": "v+rz8rCuFzMr59gsrr14k+piME/sHDmy5TPFfF5PWlo=",
+								"children": [
+									{
+										"Path": "/home/anon/projects/sigrun/pkg/util/hash.go",
+										"Hash": "oK9ol84wMtn+ARRHznbTBP/m0yHK4JJDHOtJFh7Zxag="
+									}
+								]
+							}
+						]
+					},
+					{
+						"Path": "/home/anon/projects/sigrun/scripts",
+						"Hash": "Ld0OaTyuyRxM73BF0y4n+LVP8vqIf+hLXm5Kiz+0sFg=",
+						"children": [
+							{
+								"Path": "/home/anon/projects/sigrun/scripts/gen-crt.sh",
+								"Hash": "9VXdS/1epNUJ2iei2NhihIjXyS8EzSdRXmOUKP+nXBU="
+							}
+						]
+					},
+					{
+						"Path": "/home/anon/projects/sigrun/sigrun-config.json",
+						"Hash": "aP5T2d7rhNbSMw9N+86Hp8oaDIAoPAIIK/hHpQwI75Y="
+					},
+					{
+						"Path": "/home/anon/projects/sigrun/sigrun-ledger.json",
+						"Hash": "4AZZ62Rz2uu2BMBZCuGjcuZea3LshuwcX7Pf4/7UNco="
 					},
 					{
 						"Path": "/home/anon/projects/sigrun/sigrun.png",

@@ -7,24 +7,32 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
 	"time"
+
+	git "github.com/go-git/go-git/v5"
 )
 
 type Ledger struct {
 	Entries []*LedgerEntry
 }
 
+type GitCommitObject struct {
+	Hash     string
+	Message  string
+	Author   string
+	UnixTime int64
+}
+
 type LedgerEntry struct {
-	Id            int
-	GitCommitHash string
-	Hash          string
-	Timestamp     string
-	Annotations   map[string]string
-	Checksum      *Checksum
+	Id          int
+	Git         GitCommitObject
+	Hash        string
+	Timestamp   string
+	Annotations map[string]string
+	Checksum    *Checksum
 }
 
 type Checksum struct {
@@ -43,15 +51,33 @@ func (l *Ledger) AddEntry(annotations map[string]string) error {
 		return err
 	}
 
-	gitCommitHash, _ := exec.Command("git", strings.Split("rev-parse HEAD", " ")...).Output()
+	repo, err := git.PlainOpen(".")
+	if err != nil {
+		return err
+	}
+
+	head, err := repo.Head()
+	if err != nil {
+		return err
+	}
+
+	headCommit, err := repo.CommitObject(head.Hash())
+	if err != nil {
+		return err
+	}
 
 	l.Entries = append(l.Entries, &LedgerEntry{
-		Id:            len(l.Entries) + 1,
-		GitCommitHash: strings.TrimSpace(string(gitCommitHash)),
-		Hash:          checksum.Hash,
-		Timestamp:     fmt.Sprint(time.Now().UnixNano()),
-		Annotations:   annotations,
-		Checksum:      checksum,
+		Id: len(l.Entries) + 1,
+		Git: GitCommitObject{
+			Hash:     headCommit.Hash.String(),
+			Message:  headCommit.Message,
+			Author:   headCommit.Author.Email,
+			UnixTime: headCommit.Author.When.UnixNano(),
+		},
+		Hash:        checksum.Hash,
+		Timestamp:   fmt.Sprint(time.Now().UnixNano()),
+		Annotations: annotations,
+		Checksum:    checksum,
 	})
 
 	return nil
