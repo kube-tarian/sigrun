@@ -19,6 +19,7 @@ type Ledger struct {
 }
 
 type LedgerEntry struct {
+	Id            int
 	GitCommitHash string
 	Hash          string
 	Timestamp     string
@@ -45,6 +46,7 @@ func (l *Ledger) AddEntry(annotations map[string]string) error {
 	gitCommitHash, _ := exec.Command("git", strings.Split("rev-parse HEAD", " ")...).Output()
 
 	l.Entries = append(l.Entries, &LedgerEntry{
+		Id:            len(l.Entries) + 1,
 		GitCommitHash: strings.TrimSpace(string(gitCommitHash)),
 		Hash:          checksum.Hash,
 		Timestamp:     fmt.Sprint(time.Now().UnixNano()),
