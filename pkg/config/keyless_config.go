@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/url"
 	"os"
 	"strings"
@@ -193,6 +194,22 @@ func (conf *Keyless) SignImages(annotations map[string]string) error {
 		if err := cosignCLI.SignCmd(ctx, so, compatibleAnnotations, img, "", true, "", false, false); err != nil {
 			return errors.Wrapf(err, "signing %s", img)
 		}
+	}
+
+	encodedLedger, _ := json.Marshal(ledger)
+	ledgerSig, err := conf.Sign(encodedLedger)
+	if err != nil {
+		return err
+	}
+
+	f, err = os.Create(".sigrun/ledger.sig")
+	if err != nil {
+		return err
+	}
+
+	_, err = io.Copy(f, strings.NewReader(ledgerSig))
+	if err != nil {
+		return err
 	}
 
 	return set(LEDGER_FILE_NAME, ledger)

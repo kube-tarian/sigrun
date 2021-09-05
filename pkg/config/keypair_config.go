@@ -184,6 +184,22 @@ func (conf *KeyPair) SignImages(annotations map[string]string) error {
 		}
 	}
 
+	encodedLedger, _ := json.Marshal(ledger)
+	ledgerSig, err := conf.Sign(encodedLedger)
+	if err != nil {
+		return err
+	}
+
+	f, err = os.Create(".sigrun/ledger.sig")
+	if err != nil {
+		return err
+	}
+
+	_, err = io.Copy(f, strings.NewReader(ledgerSig))
+	if err != nil {
+		return err
+	}
+
 	return set(LEDGER_FILE_NAME, ledger)
 }
 
