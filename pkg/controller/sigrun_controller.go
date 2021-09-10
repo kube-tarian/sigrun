@@ -2,7 +2,6 @@ package controller
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"os/exec"
@@ -117,10 +116,7 @@ func (s *sigrunController) List() (map[string]*RepoInfo, error) {
 		return nil, err
 	}
 
-	sigrunReposJSON, err := base64.StdEncoding.DecodeString(configMap.Data["guid_to_repo_info"])
-	if err != nil {
-		return nil, err
-	}
+	sigrunReposJSON := configMap.Data["guid_to_repo_info"]
 	guidToRepoMeta := make(map[string]*RepoInfo)
 	_ = json.NewDecoder(strings.NewReader(string(sigrunReposJSON))).Decode(&guidToRepoMeta)
 
@@ -179,12 +175,8 @@ func (s *sigrunController) Update() error {
 		return err
 	}
 
-	sigrunReposJSON, err := base64.StdEncoding.DecodeString(configMap.Data["guid_to_repo_info"])
-	if err != nil {
-		return err
-	}
 	guidToRepoMeta := make(map[string]*RepoInfo)
-	_ = json.NewDecoder(strings.NewReader(string(sigrunReposJSON))).Decode(&guidToRepoMeta)
+	_ = json.NewDecoder(strings.NewReader(string(configMap.Data["guid_to_repo_info"]))).Decode(&guidToRepoMeta)
 
 	for guid, md := range guidToRepoMeta {
 		confMap, err := config.ReadRepos(md.Path)
@@ -229,12 +221,8 @@ func (s *sigrunController) addRepo(configMap *kubernetesCoreV1.ConfigMap, guid, 
 	conf := c.GetVerificationInfo()
 
 	// add repos to sigrun-repos annotation
-	sigrunReposJSON, err := base64.StdEncoding.DecodeString(configMap.Data["guid_to_repo_info"])
-	if err != nil {
-		return nil, err
-	}
 	guidToRepoMeta := make(map[string]*RepoInfo)
-	_ = json.NewDecoder(strings.NewReader(string(sigrunReposJSON))).Decode(&guidToRepoMeta)
+	_ = json.NewDecoder(strings.NewReader(string(configMap.Data["guid_to_repo_info"]))).Decode(&guidToRepoMeta)
 
 	if guidToRepoMeta[guid] != nil {
 		return nil, fmt.Errorf("sigrun repo with guid " + guid + " and name " + conf.Name + " has already been added")
@@ -245,12 +233,8 @@ func (s *sigrunController) addRepo(configMap *kubernetesCoreV1.ConfigMap, guid, 
 		Path:             path,
 	}
 
-	imageToGuidsRaw, err := base64.StdEncoding.DecodeString(configMap.Data["image_to_guids"])
-	if err != nil {
-		return nil, err
-	}
 	imageToGuids := make(map[string][]string)
-	_ = json.NewDecoder(strings.NewReader(string(imageToGuidsRaw))).Decode(&imageToGuids)
+	_ = json.NewDecoder(strings.NewReader(configMap.Data["image_to_guids"])).Decode(&imageToGuids)
 	for _, img := range conf.Images {
 		imageToGuids[img] = append(imageToGuids[img], guid)
 	}
@@ -259,33 +243,25 @@ func (s *sigrunController) addRepo(configMap *kubernetesCoreV1.ConfigMap, guid, 
 	if err != nil {
 		return nil, err
 	}
-	configMap.Data["guid_to_repo_info"] = base64.StdEncoding.EncodeToString(guidToRepoRaw)
+	configMap.Data["guid_to_repo_info"] = string(guidToRepoRaw)
 
-	imageToGuidsRaw, err = json.Marshal(imageToGuids)
+	imageToGuidsRaw, err := json.Marshal(imageToGuids)
 	if err != nil {
 		return nil, err
 	}
-	configMap.Data["image_to_guids"] = base64.StdEncoding.EncodeToString(imageToGuidsRaw)
+	configMap.Data["image_to_guids"] = string(imageToGuidsRaw)
 
 	return configMap, nil
 }
 
 func (s *sigrunController) removeRepo(configMap *kubernetesCoreV1.ConfigMap, guid string) (*kubernetesCoreV1.ConfigMap, error) {
 	// add repos to sigrun-repos annotation
-	sigrunReposJSON, err := base64.StdEncoding.DecodeString(configMap.Data["guid_to_repo_info"])
-	if err != nil {
-		return nil, err
-	}
 	guidToRepoMeta := make(map[string]*RepoInfo)
-	_ = json.NewDecoder(strings.NewReader(string(sigrunReposJSON))).Decode(&guidToRepoMeta)
+	_ = json.NewDecoder(strings.NewReader(configMap.Data["guid_to_repo_info"])).Decode(&guidToRepoMeta)
 	delete(guidToRepoMeta, guid)
 
-	imageToGuidsRaw, err := base64.StdEncoding.DecodeString(configMap.Data["image_to_guids"])
-	if err != nil {
-		return nil, err
-	}
 	imageToGuids := make(map[string][]string)
-	_ = json.NewDecoder(strings.NewReader(string(imageToGuidsRaw))).Decode(&imageToGuids)
+	_ = json.NewDecoder(strings.NewReader(configMap.Data["image_to_guids"])).Decode(&imageToGuids)
 	newImageToGuids := make(map[string][]string)
 
 	for image, guids := range imageToGuids {
@@ -307,13 +283,13 @@ func (s *sigrunController) removeRepo(configMap *kubernetesCoreV1.ConfigMap, gui
 	if err != nil {
 		return nil, err
 	}
-	configMap.Data["guid_to_repo_info"] = base64.StdEncoding.EncodeToString(guidToRepoRaw)
+	configMap.Data["guid_to_repo_info"] = string(guidToRepoRaw)
 
-	imageToGuidsRaw, err = json.Marshal(newImageToGuids)
+	imageToGuidsRaw, err := json.Marshal(newImageToGuids)
 	if err != nil {
 		return nil, err
 	}
-	configMap.Data["image_to_guids"] = base64.StdEncoding.EncodeToString(imageToGuidsRaw)
+	configMap.Data["image_to_guids"] = string(imageToGuidsRaw)
 
 	return configMap, nil
 }
