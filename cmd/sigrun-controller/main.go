@@ -45,26 +45,26 @@ func main() {
 		var req v1beta1.AdmissionReview
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
-			log.Println(err)
+			handleErr(w, err)
 			return
 		}
 
 		var pod corev1.Pod
 		err = json.Unmarshal(req.Request.Object.Raw, &pod)
 		if err != nil {
-			log.Println(err)
+			handleErr(w, err)
 			return
 		}
 
 		configMap, err := cache.Get()
 		if err != nil {
-			log.Println(err)
+			handleErr(w, err)
 			return
 		}
 
 		guidToRepo, imageToGuids, err := controller.ParseSigrunConfigMap(configMap)
 		if err != nil {
-			log.Println(err)
+			handleErr(w, err)
 			return
 		}
 
@@ -73,7 +73,7 @@ func main() {
 		for _, container := range containers {
 			img, err := config.NormalizeImageName(container.Image)
 			if err != nil {
-				log.Println(err)
+				handleErr(w, err)
 				return
 			}
 
@@ -108,5 +108,26 @@ func main() {
 	if err := http.ListenAndServeTLS(fmt.Sprintf(":%v", PORT), tlscert, tlskey, mux); err != nil {
 		log.Printf("Failed to listen and serve webhook server: %v", err)
 	}
+}
 
+type Error struct {
+	Message string
+	Child   error
+}
+
+func (e *Error) Error() string {
+	return fmt.Sprint(e.Message + " <- " + e.Child.Error())
+}
+
+func NewError(message string, err error) error {
+	return &Error{
+		Message: message,
+		Child:   err,
+	}
+}
+
+func handleErr(w http.ResponseWriter, err error) {
+	log.Println(err)
+	w.WriteHeader(500)
+	w.Write([]byte(err.Error()))
 }
