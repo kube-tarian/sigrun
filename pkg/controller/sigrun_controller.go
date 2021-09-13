@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -77,9 +78,9 @@ func (s *sigrunController) Init() error {
 		return err
 	}
 
-	template := strings.Replace(string(templateBytes), "{{caCert}}", string(CertificateToPem(caCert)), -1)
-	template = strings.Replace(template, "{{whCert}}", string(CertificateToPem(whCert)), -1)
-	template = strings.Replace(template, "{{whKey}}", string(PrivateKeyToPem(whPriv)), -1)
+	template := strings.Replace(string(templateBytes), "{{caCert}}", base64.StdEncoding.EncodeToString(CertificateToPem(caCert)), -1)
+	template = strings.Replace(template, "{{whCert}}", base64.StdEncoding.EncodeToString(CertificateToPem(whCert)), -1)
+	template = strings.Replace(template, "{{whKey}}", base64.StdEncoding.EncodeToString(PrivateKeyToPem(whPriv)), -1)
 
 	f, err := ioutil.TempFile(os.TempDir(), "sigrun")
 	if err != nil {
