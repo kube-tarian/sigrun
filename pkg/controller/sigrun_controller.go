@@ -4,8 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
+	"time"
 
 	kubernetesCoreV1 "k8s.io/api/core/v1"
 
@@ -51,7 +57,46 @@ func (s *sigrunController) Init() error {
 		}
 	}
 
-	err = exec.Command("kubectl", "apply", "-f", "https://raw.githubusercontent.com/devopstoday11/sigrun/main/install.yaml").Run()
+	caCert, caPriv, err := GenerateCACert(24 * 365 * time.Hour)
+	if err != nil {
+		return err
+	}
+
+	whCert, whPriv, err := GenerateCertPem(caCert, caPriv, 24*365*time.Hour)
+	if err != nil {
+		return err
+	}
+
+	resp, err := http.Get("https://raw.githubusercontent.com/devopstoday11/sigrun/main/install.yaml")
+	if err != nil {
+		return err
+	}
+
+	templateBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	template := strings.Replace(string(templateBytes), "{{caCert}}", string(CertificateToPem(caCert)), -1)
+	template = strings.Replace(template, "{{whCert}}", string(CertificateToPem(whCert)), -1)
+	template = strings.Replace(template, "{{whKey}}", string(PrivateKeyToPem(whPriv)), -1)
+
+	f, err := ioutil.TempFile(os.TempDir(), "sigrun")
+	if err != nil {
+		return err
+	}
+
+	_, err = io.Copy(f, strings.NewReader(template))
+	if err != nil {
+		return err
+	}
+
+	fPath, err := filepath.Abs(filepath.Join(os.TempDir(), f.Name()))
+	if err != nil {
+		return err
+	}
+
+	err = exec.Command("kubectl", "apply", "-f", fPath).Run()
 	if err != nil {
 		return err
 	}
