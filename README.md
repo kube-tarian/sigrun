@@ -19,6 +19,7 @@ go install cmd/sigrun/sigrun.go
 ```
 sigrun --help
 ```
+Please refer to [this](./docs/USAGE.md) for information about basic flow.
 
 ##### Purpose:
 To make it easy to use SigStore chain of tools. Make the Supply Chain Security for Software adoption easy. 
