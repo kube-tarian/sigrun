@@ -21,7 +21,7 @@ func GenerateCACert(certValidityDuration time.Duration) ([]byte, *rsa.PrivateKey
 	templ := &x509.Certificate{
 		SerialNumber: big.NewInt(0),
 		Subject: pkix.Name{
-			CommonName: "*.kyverno.svc",
+			CommonName: "*.sigrun.svc",
 		},
 		NotBefore:             begin,
 		NotAfter:              end,

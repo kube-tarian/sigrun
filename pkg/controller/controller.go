@@ -2,7 +2,6 @@ package controller
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -105,19 +104,11 @@ func detectControllerType() (string, error) {
 }
 
 func ParseSigrunConfigMap(configMap *corev1.ConfigMap) (map[string]*RepoInfo, map[string][]string, error) {
-	sigrunReposJSON, err := base64.StdEncoding.DecodeString(configMap.Data["guid_to_repo_info"])
-	if err != nil {
-		return nil, nil, err
-	}
 	guidToRepoMeta := make(map[string]*RepoInfo)
-	_ = json.NewDecoder(strings.NewReader(string(sigrunReposJSON))).Decode(&guidToRepoMeta)
+	_ = json.NewDecoder(strings.NewReader(configMap.Data["guid_to_repo_info"])).Decode(&guidToRepoMeta)
 
-	imageToGuidsRaw, err := base64.StdEncoding.DecodeString(configMap.Data["image_to_guids"])
-	if err != nil {
-		return nil, nil, err
-	}
 	imageToGuids := make(map[string][]string)
-	_ = json.NewDecoder(strings.NewReader(string(imageToGuidsRaw))).Decode(&imageToGuids)
+	_ = json.NewDecoder(strings.NewReader(string(configMap.Data["image_to_guids"]))).Decode(&imageToGuids)
 
 	return guidToRepoMeta, imageToGuids, nil
 }

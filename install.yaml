@@ -18,12 +18,10 @@ kind: ClusterRole
 metadata:
   name: sigrun-account
 rules:
-  - apiGroups:
-      - ""
-    resources:
-      - "configmaps"
-    verbs:
-      - "GET"
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    resourceNames: ["sigrun-controller-config"]
+    verbs: ["get"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding

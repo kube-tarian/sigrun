@@ -77,6 +77,11 @@ func (s *sigrunController) Init() error {
 	if err != nil {
 		return err
 	}
+	//
+	//templateBytes, err := ioutil.ReadFile("./install.yaml")
+	//if err != nil {
+	//	return err
+	//}
 
 	template := strings.Replace(string(templateBytes), "{{caCert}}", base64.StdEncoding.EncodeToString(CertificateToPem(caCert)), -1)
 	template = strings.Replace(template, "{{whCert}}", base64.StdEncoding.EncodeToString(CertificateToPem(whCert)), -1)
@@ -92,7 +97,7 @@ func (s *sigrunController) Init() error {
 		return err
 	}
 
-	fPath, err := filepath.Abs(filepath.Join(os.TempDir(), f.Name()))
+	fPath, err := filepath.Abs(f.Name())
 	if err != nil {
 		return err
 	}
