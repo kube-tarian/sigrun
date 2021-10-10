@@ -10,6 +10,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/sigstore/cosign v1.0.1
 	github.com/sigstore/fulcio v0.1.1
+	github.com/sigstore/rekor v0.3.0
 	github.com/sigstore/sigstore v0.0.0-20210729211320-56a91f560f44
 	github.com/spf13/cobra v1.2.1
 	github.com/tidwall/pretty v1.2.0

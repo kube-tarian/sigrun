@@ -1,6 +1,7 @@
 package verify
 
 import (
+	transperencylog "github.com/devopstoday11/sigrun/pkg/cli/verify/transperency-log"
 	"github.com/devopstoday11/sigrun/pkg/config"
 
 	"github.com/spf13/cobra"
@@ -27,6 +28,8 @@ func Command() *cobra.Command {
 			return nil
 		},
 	}
+
+	cmd.AddCommand(transperencylog.Command())
 
 	return cmd
 }
