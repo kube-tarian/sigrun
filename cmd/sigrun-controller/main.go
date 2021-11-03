@@ -12,7 +12,6 @@ import (
 
 	"github.com/devopstoday11/sigrun/pkg/controller"
 
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
@@ -49,13 +48,6 @@ func main() {
 			return
 		}
 
-		var pod corev1.Pod
-		err = json.Unmarshal(req.Request.Object.Raw, &pod)
-		if err != nil {
-			handleErr(w, err)
-			return
-		}
-
 		configMap, err := cache.Get()
 		if err != nil {
 			handleErr(w, err)
@@ -68,8 +60,12 @@ func main() {
 			return
 		}
 
-		var containers []corev1.Container
-		containers = append(pod.Spec.Containers, pod.Spec.InitContainers...)
+		containers, err := controller.GetContainersFromResource(&req)
+		if err != nil {
+			handleErr(w, err)
+			return
+		}
+
 		for _, container := range containers {
 			img, err := config.NormalizeImageName(container.Image)
 			if err != nil {
@@ -107,22 +103,6 @@ func main() {
 	log.Printf("Server running listening in port: %s", PORT)
 	if err := http.ListenAndServeTLS(fmt.Sprintf(":%v", PORT), tlscert, tlskey, mux); err != nil {
 		log.Printf("Failed to listen and serve webhook server: %v", err)
-	}
-}
-
-type Error struct {
-	Message string
-	Child   error
-}
-
-func (e *Error) Error() string {
-	return fmt.Sprint(e.Message + " <- " + e.Child.Error())
-}
-
-func NewError(message string, err error) error {
-	return &Error{
-		Message: message,
-		Child:   err,
 	}
 }
 
