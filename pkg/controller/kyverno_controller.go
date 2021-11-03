@@ -215,7 +215,7 @@ func (k *kyvernoController) Init() error {
 		}
 	} else {
 		if cpol.Name == KYVERNO_POLICY_NAME {
-			return fmt.Errorf("Cluster has already been initialized")
+			return fmt.Errorf("cluster has already been initialized")
 		}
 	}
 

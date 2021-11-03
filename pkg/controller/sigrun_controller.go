@@ -54,7 +54,7 @@ func (s *sigrunController) Init() error {
 		}
 	} else {
 		if configMap.Name == SIGRUN_CONTROLLER_CONFIG {
-			return fmt.Errorf("Cluster has already been initialized")
+			return fmt.Errorf("cluster has already been initialized")
 		}
 	}
 
