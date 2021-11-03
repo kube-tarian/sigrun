@@ -79,14 +79,6 @@ func GetContainersFromResource(req *v1beta1.AdmissionReview) ([]corev1.Container
 
 		containers = getContainersFromCronJob(cronJob)
 
-	case "Container":
-		var container corev1.Container
-		err := json.Unmarshal(req.Request.Object.Raw, &container)
-		if err != nil {
-			return nil, NewError("failed to unmarshal container", err)
-		}
-
-		containers = append(containers, container)
 	default:
 		return nil, NewError("unsupported kind", nil)
 	}

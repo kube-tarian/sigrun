@@ -105,6 +105,14 @@ webhooks:
         apiGroups: [""]
         apiVersions: ["v1"]
         resources: ["pods"]
+      - operations: ["CREATE","UPDATE"]
+        apiGroups: ["apps"]
+        apiVersions: ["v1"]
+        resources: ["deployments","daemonsets","replicasets","statefulsets"]
+      - operations: ["CREATE","UPDATE"]
+        apiGroups: ["batch"]
+        apiVersions: ["v1"]
+        resources: ["cronjobs","jobs"]
 ---
 apiVersion: v1
 kind: ConfigMap
