@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/docker/distribution v2.7.1+incompatible
+	github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32
 	github.com/go-git/go-git/v5 v5.2.0
 	github.com/google/go-containerregistry v0.6.0
 	github.com/kyverno/kyverno v1.4.2

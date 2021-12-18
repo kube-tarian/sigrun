@@ -137,7 +137,7 @@ func (s *sigrunController) Add(repoPaths ...string) error {
 			return err
 		}
 
-		configMap, err = s.addRepo(configMap, guid, path, conf)
+		configMap, err = s.AddRepo(configMap, guid, path, conf)
 		if err != nil {
 			return err
 		}
@@ -251,7 +251,7 @@ func (s *sigrunController) Update() error {
 				return err
 			}
 
-			configMap, err = s.addRepo(configMap, guid, md.Path, newConf)
+			configMap, err = s.AddRepo(configMap, guid, md.Path, newConf)
 			if err != nil {
 				return err
 			}
@@ -268,7 +268,7 @@ func (s *sigrunController) Update() error {
 	return nil
 }
 
-func (s *sigrunController) addRepo(configMap *kubernetesCoreV1.ConfigMap, guid, path string, c config.Config) (*kubernetesCoreV1.ConfigMap, error) {
+func (s *sigrunController) AddRepo(configMap *kubernetesCoreV1.ConfigMap, guid, path string, c config.Config) (*kubernetesCoreV1.ConfigMap, error) {
 	conf := c.GetVerificationInfo()
 
 	// add repos to sigrun-repos annotation

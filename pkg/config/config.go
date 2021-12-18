@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/devopstoday11/sigrun/pkg/util"
@@ -82,6 +83,16 @@ func GetGUID(path string) (string, error) {
 	return util.SHA256Hash(resp.Body)
 }
 
+func GetGUIDFromConfigFile(path string) (string, error) {
+
+	conf, err := os.Open(path)
+	if err != nil {
+		return "", err
+	}
+
+	return util.SHA256Hash(conf)
+}
+
 // TODO should be repo urls, currentl config file urls
 func ReadRepos(repoUrls ...string) (map[string]Config, error) {
 	pathToConfig := make(map[string]Config)
@@ -92,6 +103,24 @@ func ReadRepos(repoUrls ...string) (map[string]Config, error) {
 		}
 
 		confRaw, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		pathToConfig[path], err = parseConfig(confRaw)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return pathToConfig, nil
+}
+
+// TODO should be repo urls, currentl config file urls
+func ReadReposFromPath(repoFilePaths ...string) (map[string]Config, error) {
+	pathToConfig := make(map[string]Config)
+	for _, path := range repoFilePaths {
+		confRaw, err := ioutil.ReadFile(path)
 		if err != nil {
 			return nil, err
 		}
