@@ -6,9 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
-
-	"github.com/devopstoday11/sigrun/pkg/config"
 
 	"github.com/devopstoday11/sigrun/pkg/controller"
 
@@ -54,41 +51,30 @@ func main() {
 			return
 		}
 
-		guidToRepo, imageToGuids, err := controller.ParseSigrunConfigMap(configMap)
-		if err != nil {
-			handleErr(w, err)
-			return
-		}
-
 		containers, err := controller.GetContainersFromResource(&req)
 		if err != nil {
 			handleErr(w, err)
 			return
 		}
 
-		for _, container := range containers {
-			img, err := config.NormalizeImageName(container.Image)
-			if err != nil {
+		err = controller.ValidateContainers(configMap, containers)
+		if err != nil {
+			switch err.(type) {
+			case controller.ContainerValidationError:
+				arResponse := v1beta1.AdmissionReview{
+					Response: &v1beta1.AdmissionResponse{
+						Allowed: false,
+						Result: &metav1.Status{
+							Message: err.Error(),
+						},
+					},
+				}
+				json.NewEncoder(w).Encode(arResponse)
+				return
+			default:
 				handleErr(w, err)
 				return
-			}
 
-			strippedImg := strings.Split(img, ":")[0]
-			for _, guid := range imageToGuids[strippedImg] {
-				conf := config.GetVerificationConfigFromVerificationInfo(&guidToRepo[guid].VerificationInfo)
-				err := conf.VerifyImage(img)
-				if err != nil {
-					arResponse := v1beta1.AdmissionReview{
-						Response: &v1beta1.AdmissionResponse{
-							Allowed: false,
-							Result: &metav1.Status{
-								Message: err.Error(),
-							},
-						},
-					}
-					json.NewEncoder(w).Encode(arResponse)
-					return
-				}
 			}
 		}
 

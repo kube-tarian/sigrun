@@ -9,6 +9,7 @@ import (
 	"github.com/devopstoday11/sigrun/pkg/cli/verify"
 
 	"github.com/devopstoday11/sigrun/pkg/cli/add"
+	audit_scan "github.com/devopstoday11/sigrun/pkg/cli/audit-scan"
 	initCmd "github.com/devopstoday11/sigrun/pkg/cli/init"
 	"github.com/devopstoday11/sigrun/pkg/cli/list"
 	"github.com/devopstoday11/sigrun/pkg/cli/sign"
@@ -27,7 +28,7 @@ func Run() error {
 	// TODO required for keyless mode
 	os.Setenv(cosignCLI.ExperimentalEnv, "1")
 
-	cli.AddCommand(initCmd.Command(), list.Command(), add.Command(), sign.Command(), remove.Command(), verify.Command(), generate.Command())
+	cli.AddCommand(initCmd.Command(), list.Command(), add.Command(), sign.Command(), remove.Command(), verify.Command(), generate.Command(), audit_scan.Command())
 
 	if err := cli.Execute(); err != nil {
 		return err

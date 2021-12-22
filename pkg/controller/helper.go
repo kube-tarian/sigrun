@@ -8,7 +8,11 @@ import (
 	"encoding/pem"
 	"fmt"
 	"math/big"
+	"strings"
 	"time"
+
+	"github.com/devopstoday11/sigrun/pkg/config"
+	v1 "k8s.io/api/core/v1"
 )
 
 // GenerateCACert creates the self-signed CA cert and private key
@@ -98,4 +102,31 @@ func CertificateToPem(certificateDER []byte) []byte {
 	}
 
 	return pem.EncodeToMemory(certificate)
+}
+
+type ContainerValidationError error
+
+func ValidateContainers(configMap *v1.ConfigMap, containers []v1.Container) error {
+	guidToRepo, imageToGuids, err := ParseSigrunConfigMap(configMap)
+	if err != nil {
+		return err
+	}
+
+	for _, container := range containers {
+		img, err := config.NormalizeImageName(container.Image)
+		if err != nil {
+			return err
+		}
+
+		strippedImg := strings.Split(img, ":")[0]
+		for _, guid := range imageToGuids[strippedImg] {
+			conf := config.GetVerificationConfigFromVerificationInfo(&guidToRepo[guid].VerificationInfo)
+			err := conf.VerifyImage(img)
+			if err != nil {
+				return ContainerValidationError(err)
+			}
+		}
+	}
+
+	return nil
 }
