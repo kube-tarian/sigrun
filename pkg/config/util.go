@@ -28,7 +28,7 @@ func set(path string, content interface{}) error {
 	return nil
 }
 
-const FILE_NAME = "sigrun-config.json"
+const CONFIG_FILE_NAME = "sigrun-config.json"
 const LEDGER_FILE_NAME = "sigrun-ledger.json"
 
 func detectConfigType(encodedConfig []byte) (string, error) {

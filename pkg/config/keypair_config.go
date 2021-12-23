@@ -10,6 +10,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/google/go-containerregistry/pkg/authn"
@@ -129,7 +130,7 @@ func (conf *KeyPair) CommitRepositoryUpdate() error {
 	}
 	conf.Signature = sig
 
-	err = set(FILE_NAME, conf)
+	err = set(CONFIG_FILE_NAME, conf)
 	if err != nil {
 		return err
 	}
@@ -137,7 +138,14 @@ func (conf *KeyPair) CommitRepositoryUpdate() error {
 	return set(".sigrun/"+fmt.Sprint(conf.ChainNo)+".json", conf)
 }
 
-func (conf *KeyPair) SignImages(annotations map[string]string) error {
+func (conf *KeyPair) SignImages(repoPath string, annotations map[string]string) error {
+	repoPath = filepath.Clean(repoPath)
+
+	err := os.Chdir(repoPath)
+	if err != nil {
+		return err
+	}
+
 	f, err := os.Open(LEDGER_FILE_NAME)
 	if err != nil {
 		return err
@@ -203,10 +211,22 @@ func (conf *KeyPair) SignImages(annotations map[string]string) error {
 	return set(LEDGER_FILE_NAME, ledger)
 }
 
-func (conf *KeyPair) InitializeRepository() error {
+func (conf *KeyPair) InitializeRepository(repoPath string) error {
+	repoPath = filepath.Clean(repoPath)
+
+	err := os.MkdirAll(repoPath, 0755)
+	if err != nil {
+		return err
+	}
+
+	err = os.Chdir(repoPath)
+	if err != nil {
+		return err
+	}
+
 	conf.ChainNo = 0
 	conf.Signature = ""
-	err := set(FILE_NAME, conf)
+	err = set(CONFIG_FILE_NAME, conf)
 	if err != nil {
 		return err
 	}

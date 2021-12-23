@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/google/go-containerregistry/pkg/name"
@@ -126,10 +127,21 @@ func (conf *Keyless) GetSignature() string {
 	return conf.Signature
 }
 
-func (conf *Keyless) InitializeRepository() error {
+func (conf *Keyless) InitializeRepository(repoPath string) error {
+	
+	err := os.MkdirAll(repoPath, 0755)
+	if err != nil {
+		return err
+	}
+
+	err = os.Chdir(repoPath)
+	if err != nil {
+		return err
+	}
+
 	conf.ChainNo = 0
 	conf.Signature = ""
-	err := set(FILE_NAME, conf)
+	err = set(CONFIG_FILE_NAME, conf)
 	if err != nil {
 		return err
 	}
@@ -152,7 +164,14 @@ const (
 	REKOR_URL   = "https://rekor.sigstore.dev"
 )
 
-func (conf *Keyless) SignImages(annotations map[string]string) error {
+func (conf *Keyless) SignImages(repoPath string, annotations map[string]string) error {
+	repoPath = filepath.Clean(repoPath)
+
+	err := os.Chdir(repoPath)
+	if err != nil {
+		return err
+	}
+
 	f, err := os.Open(LEDGER_FILE_NAME)
 	if err != nil {
 		return err
@@ -243,7 +262,7 @@ func (conf *Keyless) CommitRepositoryUpdate() error {
 	}
 	conf.Signature = sig
 
-	err = set(FILE_NAME, conf)
+	err = set(CONFIG_FILE_NAME, conf)
 	if err != nil {
 		return err
 	}

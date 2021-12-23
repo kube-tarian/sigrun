@@ -18,6 +18,10 @@ func Command() *cobra.Command {
 
 	var annotationsRaw string
 	cmd.Flags().StringVar(&annotationsRaw, "annotations", "", "specify annotations if any, example format - name=jon,org=sigrun")
+
+	var repoPath string
+	cmd.Flags().StringVar(&repoPath, "path", "./", "Path to the sigrun repository")
+
 	cmd.RunE = func(cmd *cobra.Command, args []string) (err error) {
 		conf, err := config.ReadRepositoryConfig()
 		if err != nil {
@@ -29,7 +33,7 @@ func Command() *cobra.Command {
 			return err
 		}
 
-		return conf.SignImages(annotations)
+		return conf.SignImages(repoPath, annotations)
 	}
 
 	return cmd

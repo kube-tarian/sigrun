@@ -41,8 +41,8 @@ func NewKeylessConfig(name string, maintainers, images []string) *Keyless {
 }
 
 type Config interface {
-	InitializeRepository() error
-	SignImages(map[string]string) error
+	InitializeRepository(repoPath string) error
+	SignImages(repoPath string, annotations map[string]string) error
 	CommitRepositoryUpdate() error
 	GetChainNo() int64
 	Sign([]byte) (string, error)
@@ -64,7 +64,7 @@ type VerificationInfo struct {
 }
 
 func ReadRepositoryConfig() (Config, error) {
-	encodedConfig, err := ioutil.ReadFile(FILE_NAME)
+	encodedConfig, err := ioutil.ReadFile(CONFIG_FILE_NAME)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func ReadRepositoryConfig() (Config, error) {
 }
 
 func GetGUID(path string) (string, error) {
-	genesisConfPath := strings.Replace(path, FILE_NAME, ".sigrun/0.json", -1)
+	genesisConfPath := strings.Replace(path, CONFIG_FILE_NAME, ".sigrun/0.json", -1)
 
 	resp, err := http.Get(genesisConfPath)
 	if err != nil {
@@ -164,7 +164,7 @@ func VerifyChain(repoPath string, oldConf, newConf Config) error {
 	prevConf := oldConf
 	var currConf Config
 	for currentChainNo <= newConf.GetChainNo() {
-		currPath := strings.Replace(repoPath, FILE_NAME, ".sigrun/"+fmt.Sprint(currentChainNo)+".json", -1)
+		currPath := strings.Replace(repoPath, CONFIG_FILE_NAME, ".sigrun/"+fmt.Sprint(currentChainNo)+".json", -1)
 		confMap, err := ReadRepos(currPath)
 		if err != nil {
 			return err
