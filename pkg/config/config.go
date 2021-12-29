@@ -40,6 +40,7 @@ func NewKeylessConfig(name string, maintainers, images []string) *Keyless {
 	}
 }
 
+// TODO Improper abstraction - too many things in common. Abstract only what is needed.
 type Config interface {
 	InitializeRepository(repoPath string) error
 	SignImages(repoPath string, annotations map[string]string) error
