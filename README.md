@@ -48,3 +48,13 @@ Local, CI/CD pipelines, K8s Clusters, VMs.
 
 
 #
+
+## Contributing
+See [docs/contributing.md](docs/contributing.md)
+
+## Code of Conduct
+See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+
+## CodeOwners & Maintainers list
+See [MAINTAINERS.md](MAINTAINERS.md)
+
