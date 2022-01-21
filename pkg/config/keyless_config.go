@@ -25,7 +25,6 @@ import (
 type Keyless struct {
 	Name        string
 	Mode        string
-	ChainNo     int64
 	Maintainers []string
 	Images      []string
 	Signature   string
@@ -92,35 +91,10 @@ func (conf *Keyless) GetVerificationInfo() *VerificationInfo {
 	return &VerificationInfo{
 		Name:        conf.Name,
 		Mode:        conf.Mode,
-		ChainNo:     conf.ChainNo,
 		PublicKey:   "",
 		Maintainers: conf.Maintainers,
 		Images:      conf.Images,
 	}
-}
-
-func (conf *Keyless) VerifySuccessorConfig(config Config) error {
-	data, err := conf.SignDoc()
-	if err != nil {
-		return err
-	}
-
-	fulcioServer, err := url.Parse(fulcioClient.SigstorePublicServerURL)
-	if err != nil {
-		return errors.Wrap(err, "parsing Fulcio URL")
-	}
-	fClient := fulcioClient.New(fulcioServer)
-	signerVerifier, err := fulcio.NewSigner(context.Background(), "", OICD_ISSUER, "sigstore", fClient)
-	if err != nil {
-		return errors.Wrap(err, "getting key from Fulcio")
-	}
-
-	sig, err := base64.StdEncoding.DecodeString(conf.Signature)
-	if err != nil {
-		return err
-	}
-
-	return signerVerifier.VerifySignature(bytes.NewReader(sig), bytes.NewReader(data))
 }
 
 func (conf *Keyless) GetSignature() string {
@@ -139,7 +113,6 @@ func (conf *Keyless) InitializeRepository(repoPath string) error {
 		return err
 	}
 
-	conf.ChainNo = 0
 	conf.Signature = ""
 	err = set(CONFIG_FILE_NAME, conf)
 	if err != nil {
@@ -235,46 +208,6 @@ func (conf *Keyless) SignImages(repoPath string, annotations map[string]string) 
 	return set(LEDGER_FILE_NAME, ledger)
 }
 
-func (conf *Keyless) CommitRepositoryUpdate() error {
-	oldConf, err := getChainHead()
-	if err != nil {
-		return err
-	}
-
-	isSame, err := isSame(conf, oldConf)
-	if err != nil {
-		return err
-	}
-
-	if isSame {
-		return fmt.Errorf("config has not changed")
-	}
-
-	conf.ChainNo = oldConf.GetChainNo() + 1
-
-	signDoc, err := conf.SignDoc()
-	if err != nil {
-		return err
-	}
-
-	sig, err := oldConf.Sign(signDoc)
-	if err != nil {
-		return err
-	}
-	conf.Signature = sig
-
-	err = set(CONFIG_FILE_NAME, conf)
-	if err != nil {
-		return err
-	}
-
-	return set(".sigrun/"+fmt.Sprint(conf.ChainNo)+".json", conf)
-}
-
-func (conf *Keyless) GetChainNo() int64 {
-	return conf.ChainNo
-}
-
 func (conf *Keyless) Sign(msg []byte) (string, error) {
 	fulcioServer, err := url.Parse(fulcioClient.SigstorePublicServerURL)
 	if err != nil {
@@ -292,14 +225,4 @@ func (conf *Keyless) Sign(msg []byte) (string, error) {
 	}
 
 	return base64.StdEncoding.EncodeToString(sig), nil
-}
-
-func (conf *Keyless) SignDoc() ([]byte, error) {
-	var signDoc = *conf
-	signDoc.Signature = ""
-	return json.Marshal(signDoc)
-}
-
-func (conf *Keyless) Validate() error {
-	return nil
 }

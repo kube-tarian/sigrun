@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -21,7 +20,6 @@ func NewKeypairConfig(name, pubKey, privKey string, images []string) *KeyPair {
 	return &KeyPair{
 		Name:       name,
 		Mode:       CONFIG_MODE_KEYPAIR,
-		ChainNo:    0,
 		PublicKey:  pubKey,
 		PrivateKey: privKey,
 		Images:     images,
@@ -33,7 +31,6 @@ func NewKeylessConfig(name string, maintainers, images []string) *Keyless {
 	return &Keyless{
 		Name:        name,
 		Mode:        CONFIG_MODE_KEYLESS,
-		ChainNo:     0,
 		Maintainers: maintainers,
 		Images:      images,
 		Signature:   "",
@@ -44,13 +41,8 @@ func NewKeylessConfig(name string, maintainers, images []string) *Keyless {
 type Config interface {
 	InitializeRepository(repoPath string) error
 	SignImages(repoPath string, annotations map[string]string) error
-	CommitRepositoryUpdate() error
-	GetChainNo() int64
 	Sign([]byte) (string, error)
-	SignDoc() ([]byte, error)
-	Validate() error
 	GetVerificationInfo() *VerificationInfo
-	VerifySuccessorConfig(Config) error
 	GetSignature() string
 	VerifyImage(image string) error
 }
@@ -140,7 +132,6 @@ func GetVerificationConfigFromVerificationInfo(info *VerificationInfo) Config {
 		return &Keyless{
 			Name:        info.Name,
 			Mode:        info.Mode,
-			ChainNo:     info.ChainNo,
 			Maintainers: info.Maintainers,
 			Images:      info.Images,
 			Signature:   "",
@@ -149,47 +140,12 @@ func GetVerificationConfigFromVerificationInfo(info *VerificationInfo) Config {
 		return &KeyPair{
 			Name:       info.Name,
 			Mode:       info.Mode,
-			ChainNo:    info.ChainNo,
 			PublicKey:  info.PublicKey,
 			PrivateKey: "",
 			Images:     info.Images,
 			Signature:  "",
 		}
 	}
-}
-
-func VerifyChain(repoPath string, oldConf, newConf Config) error {
-	var err error
-
-	currentChainNo := oldConf.GetChainNo() + 1
-	prevConf := oldConf
-	var currConf Config
-	for currentChainNo <= newConf.GetChainNo() {
-		currPath := strings.Replace(repoPath, CONFIG_FILE_NAME, ".sigrun/"+fmt.Sprint(currentChainNo)+".json", -1)
-		confMap, err := ReadRepos(currPath)
-		if err != nil {
-			return err
-		}
-		currConf = confMap[currPath]
-
-		err = prevConf.VerifySuccessorConfig(currConf)
-		if err != nil {
-			return err
-		}
-		prevConf = currConf
-		currentChainNo = currConf.GetChainNo() + 1
-	}
-
-	isSame, err := isSame(currConf, newConf)
-	if err != nil {
-		return err
-	}
-
-	if !isSame {
-		return fmt.Errorf("chain head is not the same as config file")
-	}
-
-	return nil
 }
 
 func NormalizeImageName(image string) (string, error) {

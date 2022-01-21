@@ -210,64 +210,6 @@ func (s *sigrunController) Remove(repoPaths ...string) error {
 	return nil
 }
 
-func (s *sigrunController) Update() error {
-	kRestConf, err := genericclioptions.NewConfigFlags(true).ToRESTConfig()
-	if err != nil {
-		return err
-	}
-
-	kclient, err := kubernetes.NewForConfig(kRestConf)
-	if err != nil {
-		return err
-	}
-
-	configMap, err := kclient.CoreV1().ConfigMaps(SIGRUN_CONTROLLER_NAMESPACE).Get(context.Background(), SIGRUN_CONTROLLER_CONFIG, v1.GetOptions{})
-	if err != nil {
-		return err
-	}
-
-	guidToRepoMeta := make(map[string]*RepoInfo)
-	_ = json.NewDecoder(strings.NewReader(string(configMap.Data["guid_to_repo_info"]))).Decode(&guidToRepoMeta)
-
-	for guid, md := range guidToRepoMeta {
-		confMap, err := config.ReadRepos(md.Path)
-		if err != nil {
-			return err
-		}
-		newConf := confMap[md.Path]
-		newConfInfo := newConf.GetVerificationInfo()
-
-		if newConfInfo.ChainNo > md.ChainNo {
-			oldConf := config.GetVerificationConfigFromVerificationInfo(&md.VerificationInfo)
-			fmt.Println("verifying sigrun repo with guid " + guid + " and name " + md.Name + " from chain no " + fmt.Sprint(md.ChainNo) + " to " + fmt.Sprint(newConfInfo.ChainNo))
-			err = config.VerifyChain(md.Path, oldConf, newConf)
-			if err != nil {
-				return err
-			}
-
-			fmt.Println("updating sigrun repo with guid " + guid + " and name " + md.Name + " from chain no " + fmt.Sprint(md.ChainNo) + " to " + fmt.Sprint(newConfInfo.ChainNo))
-			configMap, err = s.removeRepo(configMap, guid)
-			if err != nil {
-				return err
-			}
-
-			configMap, err = s.AddRepo(configMap, guid, md.Path, newConf)
-			if err != nil {
-				return err
-			}
-		} else {
-			fmt.Println("sigrun repo with guid " + guid + " and name " + md.Name + " is already upto date")
-		}
-	}
-
-	_, err = kclient.CoreV1().ConfigMaps(SIGRUN_CONTROLLER_NAMESPACE).Update(context.Background(), configMap, v1.UpdateOptions{})
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (s *sigrunController) AddRepo(configMap *kubernetesCoreV1.ConfigMap, guid, path string, c config.Config) (*kubernetesCoreV1.ConfigMap, error) {
 	conf := c.GetVerificationInfo()
 

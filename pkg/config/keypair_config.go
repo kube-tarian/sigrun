@@ -3,7 +3,6 @@ package config
 import (
 	"bytes"
 	"context"
-	"crypto"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -17,8 +16,6 @@ import (
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 
-	"github.com/sigstore/sigstore/pkg/signature"
-
 	"github.com/pkg/errors"
 	cosignCLI "github.com/sigstore/cosign/cmd/cosign/cli"
 
@@ -28,7 +25,6 @@ import (
 type KeyPair struct {
 	Name       string
 	Mode       string
-	ChainNo    int64
 	PublicKey  string
 	PrivateKey string
 	Images     []string
@@ -39,42 +35,14 @@ func (conf *KeyPair) GetSignature() string {
 	return conf.Signature
 }
 
-func (conf *KeyPair) VerifySuccessorConfig(config Config) error {
-	data, err := config.SignDoc()
-	if err != nil {
-		return err
-	}
-
-	pubK, err := cosign.PemToECDSAKey([]byte(conf.PublicKey))
-	if err != nil {
-		return err
-	}
-	verifier, err := signature.LoadECDSAVerifier(pubK, crypto.SHA256)
-	if err != nil {
-		return err
-	}
-
-	sigRaw, err := base64.StdEncoding.DecodeString(config.GetSignature())
-	if err != nil {
-		return err
-	}
-
-	return verifier.VerifySignature(bytes.NewReader(sigRaw), bytes.NewReader(data))
-}
-
 func (conf *KeyPair) GetVerificationInfo() *VerificationInfo {
 	return &VerificationInfo{
 		Name:        conf.Name,
 		Mode:        conf.Mode,
-		ChainNo:     conf.ChainNo,
 		PublicKey:   conf.PublicKey,
 		Maintainers: nil,
 		Images:      conf.Images,
 	}
-}
-
-func (conf *KeyPair) GetChainNo() int64 {
-	return conf.ChainNo
 }
 
 func (conf *KeyPair) Sign(data []byte) (string, error) {
@@ -94,48 +62,6 @@ func (conf *KeyPair) Sign(data []byte) (string, error) {
 	}
 
 	return base64.StdEncoding.EncodeToString(sig), nil
-}
-
-func (conf *KeyPair) SignDoc() ([]byte, error) {
-	var signDoc = *conf
-	signDoc.Signature = ""
-	return json.Marshal(signDoc)
-}
-
-func (conf *KeyPair) CommitRepositoryUpdate() error {
-	oldConf, err := getChainHead()
-	if err != nil {
-		return err
-	}
-
-	isSame, err := isSame(conf, oldConf)
-	if err != nil {
-		return err
-	}
-
-	if isSame {
-		return fmt.Errorf("config has not changed")
-	}
-
-	conf.ChainNo = oldConf.GetChainNo() + 1
-
-	signDoc, err := conf.SignDoc()
-	if err != nil {
-		return err
-	}
-
-	sig, err := oldConf.Sign(signDoc)
-	if err != nil {
-		return err
-	}
-	conf.Signature = sig
-
-	err = set(CONFIG_FILE_NAME, conf)
-	if err != nil {
-		return err
-	}
-
-	return set(".sigrun/"+fmt.Sprint(conf.ChainNo)+".json", conf)
 }
 
 func (conf *KeyPair) SignImages(repoPath string, annotations map[string]string) error {
@@ -225,7 +151,6 @@ func (conf *KeyPair) InitializeRepository(repoPath string) error {
 		return err
 	}
 
-	conf.ChainNo = 0
 	conf.Signature = ""
 	err = set(CONFIG_FILE_NAME, conf)
 	if err != nil {
@@ -243,11 +168,6 @@ func (conf *KeyPair) InitializeRepository(repoPath string) error {
 	}
 
 	return set(".sigrun/0.json", conf)
-}
-
-func (conf *KeyPair) Validate() error {
-
-	return nil
 }
 
 func (conf *KeyPair) VerifyImage(image string) error {
@@ -287,14 +207,4 @@ func (conf *KeyPair) VerifyImage(image string) error {
 	}
 
 	return nil
-}
-
-func decodePEM(raw []byte) (signature.Verifier, error) {
-	// PEM encoded file.
-	ed, err := cosign.PemToECDSAKey(raw)
-	if err != nil {
-		return nil, errors.Wrap(err, "pem to ecdsa")
-	}
-
-	return signature.LoadECDSAVerifier(ed, crypto.SHA256)
 }

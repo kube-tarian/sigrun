@@ -19,7 +19,7 @@ func Command() *cobra.Command {
 			return err
 		}
 
-		cont, err := controller.GetController()
+		cont := controller.New()
 		if err != nil {
 			return err
 		}

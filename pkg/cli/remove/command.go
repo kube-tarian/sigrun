@@ -12,11 +12,7 @@ func Command() *cobra.Command {
 	}
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) (err error) {
-		cont, err := controller.GetController()
-		if err != nil {
-			return nil
-		}
-
+		cont := controller.New()
 		return cont.Remove(args...)
 	}
 

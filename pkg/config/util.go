@@ -2,12 +2,17 @@ package config
 
 import (
 	"bytes"
+	"crypto"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/pkg/errors"
+	"github.com/sigstore/cosign/pkg/cosign"
+	"github.com/sigstore/sigstore/pkg/signature"
 
 	"github.com/devopstoday11/sigrun/pkg/util"
 )
@@ -124,4 +129,13 @@ func isSame(conf1, conf2 Config) (bool, error) {
 	}
 
 	return false, nil
+}
+func decodePEM(raw []byte) (signature.Verifier, error) {
+	// PEM encoded file.
+	ed, err := cosign.PemToECDSAKey(raw)
+	if err != nil {
+		return nil, errors.Wrap(err, "pem to ecdsa")
+	}
+
+	return signature.LoadECDSAVerifier(ed, crypto.SHA256)
 }

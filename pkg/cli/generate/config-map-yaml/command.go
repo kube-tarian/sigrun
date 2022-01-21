@@ -21,7 +21,7 @@ func Command() *cobra.Command {
 				return err
 			}
 
-			cont := controller.NewSigrunController()
+			cont := controller.New()
 			configMap := &corev1.ConfigMap{
 				TypeMeta:   metav1.TypeMeta{Kind: "ConfigMap", APIVersion: "v1"},
 				ObjectMeta: metav1.ObjectMeta{Name: controller.SIGRUN_CONTROLLER_CONFIG},

@@ -37,7 +37,7 @@ func (c *ConfigMapCache) Get() (*corev1.ConfigMap, error) {
 	defer c.mu.Unlock()
 
 	if c.configMap != nil {
-		return c.configMap.DeepCopy(), nil
+		return c.configMap, nil
 	}
 
 	configMap, err := c.client.CoreV1().ConfigMaps(SIGRUN_CONTROLLER_NAMESPACE).Get(context.Background(), SIGRUN_CONTROLLER_CONFIG, v1.GetOptions{})

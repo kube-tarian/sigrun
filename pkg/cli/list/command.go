@@ -18,11 +18,7 @@ func Command() *cobra.Command {
 	}
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) (err error) {
-		cont, err := controller.GetController()
-		if err != nil {
-			return err
-		}
-
+		cont := controller.New()
 		repoInfo, err := cont.List()
 		if err != nil {
 			return err

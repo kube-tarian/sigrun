@@ -7,7 +7,8 @@ require (
 	github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32
 	github.com/go-git/go-git/v5 v5.2.0
 	github.com/google/go-containerregistry v0.6.0
-	github.com/kyverno/kyverno v1.4.2
+	github.com/gopherjs/gopherjs v0.0.0-20190328170749-bb2674552d8f // indirect
+	github.com/mattn/go-isatty v0.0.13 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/sigstore/cosign v1.0.1
 	github.com/sigstore/fulcio v0.1.1

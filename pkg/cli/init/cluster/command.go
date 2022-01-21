@@ -11,10 +11,8 @@ func Command() *cobra.Command {
 		Use:   "cluster",
 		Short: "Initializes a kubernetes cluster to be a sigrun consumer",
 	}
-	var controllerF string
-	cmd.Flags().StringVar(&controllerF, "controller", "sigrun", "specify the controller you would like to use")
 	cmd.RunE = func(cmd *cobra.Command, args []string) (err error) {
-		return controller.GetControllerOfType(controllerF).Init()
+		return controller.New().Init()
 	}
 
 	return cmd

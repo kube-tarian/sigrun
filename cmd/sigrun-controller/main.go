@@ -51,7 +51,7 @@ func main() {
 				return
 			default:
 				log.Println(err)
-				w.WriteHeader(500)
+				w.WriteHeader(http.StatusInternalServerError)
 				w.Write([]byte(err.Error()))
 				return
 			}
