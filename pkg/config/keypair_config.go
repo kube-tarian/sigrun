@@ -192,6 +192,7 @@ func (conf *KeyPair) SignImages(repoPath string, annotations map[string]string) 
 		}
 	}
 
+	fmt.Println("Please input password again for ledger signature")
 	encodedLedger, _ := json.Marshal(ledger)
 	ledgerSig, err := conf.Sign(encodedLedger)
 	if err != nil {

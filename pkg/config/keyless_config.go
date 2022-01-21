@@ -128,7 +128,7 @@ func (conf *Keyless) GetSignature() string {
 }
 
 func (conf *Keyless) InitializeRepository(repoPath string) error {
-	
+
 	err := os.MkdirAll(repoPath, 0755)
 	if err != nil {
 		return err
@@ -215,6 +215,7 @@ func (conf *Keyless) SignImages(repoPath string, annotations map[string]string) 
 		}
 	}
 
+	fmt.Println("Please input password again for ledger signature")
 	encodedLedger, _ := json.Marshal(ledger)
 	ledgerSig, err := conf.Sign(encodedLedger)
 	if err != nil {
