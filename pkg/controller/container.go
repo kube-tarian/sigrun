@@ -79,8 +79,6 @@ func GetContainersFromResource(req *v1beta1.AdmissionReview) ([]corev1.Container
 
 		containers = getContainersFromCronJob(cronJob)
 
-	default:
-		return nil, NewError("unsupported kind", nil)
 	}
 
 	return containers, nil
