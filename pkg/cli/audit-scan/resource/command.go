@@ -2,6 +2,7 @@ package resource
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/devopstoday11/sigrun/pkg/controller"
 	"github.com/spf13/cobra"
@@ -44,6 +45,7 @@ func Command() *cobra.Command {
 				return err
 			}
 			containers = append(containers, pod.Spec.Containers...)
+			fmt.Println("scanning pod " + pod.Name + "....")
 		}
 
 		return controller.ValidateContainers(configMap, containers)

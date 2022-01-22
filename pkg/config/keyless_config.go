@@ -27,7 +27,6 @@ type Keyless struct {
 	Mode        string
 	Maintainers []string
 	Images      []string
-	Signature   string
 }
 
 func (conf *Keyless) VerifyImage(image string) error {
@@ -97,10 +96,6 @@ func (conf *Keyless) GetVerificationInfo() *VerificationInfo {
 	}
 }
 
-func (conf *Keyless) GetSignature() string {
-	return conf.Signature
-}
-
 func (conf *Keyless) InitializeRepository(repoPath string) error {
 
 	err := os.MkdirAll(repoPath, 0755)
@@ -113,7 +108,6 @@ func (conf *Keyless) InitializeRepository(repoPath string) error {
 		return err
 	}
 
-	conf.Signature = ""
 	err = set(CONFIG_FILE_NAME, conf)
 	if err != nil {
 		return err
@@ -129,7 +123,7 @@ func (conf *Keyless) InitializeRepository(repoPath string) error {
 		return err
 	}
 
-	return set(".sigrun/0.json", conf)
+	return nil
 }
 
 const (

@@ -23,7 +23,6 @@ func NewKeypairConfig(name, pubKey, privKey string, images []string) *KeyPair {
 		PublicKey:  pubKey,
 		PrivateKey: privKey,
 		Images:     images,
-		Signature:  "",
 	}
 }
 
@@ -33,7 +32,6 @@ func NewKeylessConfig(name string, maintainers, images []string) *Keyless {
 		Mode:        CONFIG_MODE_KEYLESS,
 		Maintainers: maintainers,
 		Images:      images,
-		Signature:   "",
 	}
 }
 
@@ -43,14 +41,12 @@ type Config interface {
 	SignImages(repoPath string, annotations map[string]string) error
 	Sign([]byte) (string, error)
 	GetVerificationInfo() *VerificationInfo
-	GetSignature() string
 	VerifyImage(image string) error
 }
 
 type VerificationInfo struct {
 	Name        string
 	Mode        string
-	ChainNo     int64
 	PublicKey   string
 	Maintainers []string
 	Images      []string
@@ -134,7 +130,6 @@ func GetVerificationConfigFromVerificationInfo(info *VerificationInfo) Config {
 			Mode:        info.Mode,
 			Maintainers: info.Maintainers,
 			Images:      info.Images,
-			Signature:   "",
 		}
 	} else {
 		return &KeyPair{
@@ -143,7 +138,6 @@ func GetVerificationConfigFromVerificationInfo(info *VerificationInfo) Config {
 			PublicKey:  info.PublicKey,
 			PrivateKey: "",
 			Images:     info.Images,
-			Signature:  "",
 		}
 	}
 }

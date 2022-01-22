@@ -28,11 +28,6 @@ type KeyPair struct {
 	PublicKey  string
 	PrivateKey string
 	Images     []string
-	Signature  string
-}
-
-func (conf *KeyPair) GetSignature() string {
-	return conf.Signature
 }
 
 func (conf *KeyPair) GetVerificationInfo() *VerificationInfo {
@@ -151,7 +146,6 @@ func (conf *KeyPair) InitializeRepository(repoPath string) error {
 		return err
 	}
 
-	conf.Signature = ""
 	err = set(CONFIG_FILE_NAME, conf)
 	if err != nil {
 		return err
@@ -167,7 +161,7 @@ func (conf *KeyPair) InitializeRepository(repoPath string) error {
 		return err
 	}
 
-	return set(".sigrun/0.json", conf)
+	return nil
 }
 
 func (conf *KeyPair) VerifyImage(image string) error {

@@ -2,6 +2,7 @@ package namespace
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/devopstoday11/sigrun/pkg/controller"
 	"github.com/spf13/cobra"
@@ -41,6 +42,7 @@ func Command() *cobra.Command {
 
 				for _, pod := range podList.Items {
 					containers = append(containers, pod.Spec.Containers...)
+					fmt.Println("scanning pod " + pod.Name + "....")
 				}
 			}
 

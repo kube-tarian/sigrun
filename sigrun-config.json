@@ -1,0 +1,10 @@
+{
+	"Name": "sigrun",
+	"Mode": "keyless",
+	"Maintainers": [
+		"shravanshetty322@gmail.com"
+	],
+	"Images": [
+	"ghcr.io/shravanshetty1/sigrun-example:latest"
+	]
+}
