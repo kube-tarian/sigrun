@@ -75,7 +75,7 @@ spec:
       serviceAccountName: sigrun-account
       containers:
         - name: sigrun-controller
-          image: shravanss/sigrun-controller:latest
+          image: ghcr.io/shravanshetty1/sigrun-controller:latest
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: webhook-certs
