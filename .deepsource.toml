@@ -56,3 +56,4 @@ enabled = true
 
   [analyzers.meta]
   import_root = "github.com/kube-tarian/sigrun"
+  dependencies_vendored = true
