@@ -1,4 +1,4 @@
-# SigRun <img src="/sigrun.png" width="150" height="100"> 
+# SigRun <img src="/sigrun1.png" width="300" height="300"> 
 Sign your artifacts source code or container images using Sigstore chain of tools & Known Container Image Build tools, Save the Signatures you want to use within your Infra, and Validate &amp; Control the deployments to allow only the known Signatures. Shift-left your supply chain security!
 > What's with the Name (in case if you are curious)?
 > You can think of multiple ways. It has a flexible interpretation, like Signatures for Runtime or Runtime Signatures or Sign Software for Runtime use. Whatever you want to imagine! :smiley: 
